@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>K2ChickenPOS — Engineering Case Study — Soham Patil</title>
+<meta name="description" content="How an offline-first POS keeps 3 franchise stores billing through 6-hour network outages. Architecture, challenges, and lessons." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --gallery:#F6F6F3;
+  --ink:#101013;
+  --klein:#2230E8;
+  --fog:#83838C;
+  --hairline:#E2E2DC;
+  --ink-hairline:#26262C;
+  --display:'Lora',serif;
+  --body:'Inter',sans-serif;
+  --mono:'Inter',sans-serif;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+  --gutter:clamp(20px,5vw,72px);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--gallery);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body.locked{overflow:hidden;}
+::selection{background:var(--klein);color:#fff;}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+
+.wrap{max-width:1360px;margin:0 auto;padding:0 var(--gutter);}
+.wrap-narrow{max-width:960px;margin:0 auto;padding:0 var(--gutter);}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--fog);
+  display:flex;align-items:center;gap:14px;
+}
+.eyebrow::before{content:'';width:28px;height:1px;background:var(--klein);}
+
+/* ============ INTRO OVERLAY ============ */
+#intro{
+  position:fixed;inset:0;z-index:100;
+  background:var(--ink);color:var(--gallery);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--gutter);
+  transition:transform 1.4s var(--ease);
+}
+#intro.lift{transform:translateY(-100%);}
+.intro-line{overflow:hidden;}
+.intro-line span{
+  display:block;
+  font-weight:700;
+  font-size:clamp(64px,15vw,220px);
+  line-height:.92;
+  letter-spacing:-.015em;
+  text-transform:uppercase;
+  transform:translateY(110%);
+  transition:transform 1.3s var(--ease);
+  opacity:1;
+}
+#intro.play .intro-line span{transform:translateY(0);}
+.intro-line:nth-child(2) span{transition-delay:.12s;}
+.intro-rule{
+  height:2px;width:0;background:var(--klein);
+  margin:34px 0 18px;
+  transition:width 1s var(--ease) .55s;
+}
+#intro.play .intro-rule{width:min(420px,60%);}
+.intro-meta{
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:#6C6C76;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .7s ease .8s,transform .7s var(--ease) .8s;
+  display:flex;gap:40px;flex-wrap:wrap;
+}
+#intro.play .intro-meta{opacity:1;transform:none;}
+
+/* ============ NAV ============ */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  padding:22px var(--gutter);
+  display:flex;justify-content:space-between;align-items:center;
+  opacity:0;transform:translateY(-12px);
+  transition:opacity .8s ease,transform .8s var(--ease),background .3s ease,padding .3s ease;
+}
+body.ready header{opacity:1;transform:none;}
+header.scrolled{
+  background:rgba(246,246,243,.82);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:14px var(--gutter);
+  border-bottom:1px solid var(--hairline);
+}
+.logo{
+  font-weight:800;
+  text-transform:uppercase;letter-spacing:-.01em;font-size:17px;
+}
+.logo em{font-style:normal;color:var(--klein);}
+nav{display:flex;gap:34px;}
+nav a{
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  position:relative;padding:4px 0;color:var(--ink);
+}
+nav a::after{
+  content:'';position:absolute;left:0;bottom:0;height:1px;width:100%;
+  background:var(--klein);transform:scaleX(0);transform-origin:right;
+  transition:transform .4s var(--ease);
+}
+nav a:hover::after{transform:scaleX(1);transform-origin:left;}
+.nav-cta{color:var(--klein) !important;}
+.menu-btn{
+  display:none;background:none;border:none;cursor:pointer;z-index:70;
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);
+}
+
+/* ============ HERO (landing) ============ */
+.hero{
+  min-height:100svh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 var(--gutter) clamp(48px,8vh,90px);
+  position:relative;
+}
+.hero h1{
+  font-weight:800;
+  ;
+  font-size:clamp(44px,8.6vw,132px);
+  line-height:.98;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  max-width:15ch;
+}
+.hero h1 .line{display:block;overflow:hidden;}
+.hero h1 .line i{
+  font-style:normal;display:block;
+  transform:translateY(110%);
+  transition:transform 1.1s var(--ease);
+}
+body.ready .hero h1 .line i{transform:none;}
+body.ready .hero h1 .line:nth-child(2) i{transition-delay:.08s;}
+body.ready .hero h1 .line:nth-child(3) i{transition-delay:.16s;}
+.hero h1 em{font-style:normal;color:var(--klein);}
+.hero-foot{
+  display:flex;justify-content:space-between;align-items:flex-end;gap:40px;
+  margin-top:clamp(32px,5vh,56px);flex-wrap:wrap;
+  opacity:0;transform:translateY(16px);
+  transition:opacity .9s ease .35s,transform .9s var(--ease) .35s;
+}
+body.ready .hero-foot{opacity:1;transform:none;}
+.hero-foot p{max-width:44ch;color:var(--fog);font-size:16px;}
+.hero-foot p strong{color:var(--ink);font-weight:600;}
+.scroll-hint{
+  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--fog);display:flex;align-items:center;gap:12px;white-space:nowrap;
+}
+.scroll-hint::after{
+  content:'';width:1px;height:44px;background:var(--ink);
+  animation:drip 2.2s var(--ease) infinite;
+  transform-origin:top;
+}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top;}45%{transform:scaleY(1);transform-origin:top;}55%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
+
+/* ============ TICKER STRIP ============ */
+.strip{
+  border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+  padding:18px 0;overflow:hidden;
+}
+.strip-track{
+  display:flex;gap:64px;width:max-content;
+  animation:ticker 34s linear infinite;
+}
+.strip:hover .strip-track{animation-play-state:paused;}
+.strip-track span{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fog);white-space:nowrap;display:flex;align-items:center;gap:64px;
+}
+.strip-track span::after{content:'◆';color:var(--klein);font-size:8px;}
+@keyframes ticker{to{transform:translateX(-50%);}}
+
+/* ============ SECTIONS ============ */
+section{padding:clamp(90px,14vh,160px) 0;}
+.section-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:clamp(48px,8vh,84px);gap:32px;flex-wrap:wrap;
+}
+.section-head h2{
+  font-weight:800;
+  font-size:clamp(36px,5.6vw,80px);line-height:1;
+  letter-spacing:-.02em;text-transform:uppercase;margin-top:18px;
+}
+.section-head .count{
+  font-family:var(--mono);font-size:13px;color:var(--fog);letter-spacing:.1em;
+}
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s var(--ease);}
+.reveal.in{opacity:1;transform:none;}
+
+/* ============ WORK (landing) ============ */
+.case{
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:clamp(32px,5vw,80px);
+  padding:clamp(44px,7vh,72px) 0;
+  border-top:1px solid var(--hairline);
+  align-items:start;
+}
+.case:last-of-type{border-bottom:1px solid var(--hairline);}
+.case-left{position:sticky;top:110px;}
+.case-idx{
+  font-family:var(--mono);font-size:12px;color:var(--klein);letter-spacing:.14em;
+  margin-bottom:18px;display:block;
+}
+.case h3{
+  font-weight:750;
+  font-size:clamp(28px,3.6vw,52px);line-height:1.04;letter-spacing:-.015em;
+  margin-bottom:16px;
+}
+.case h3 a{transition:color .3s ease;}
+.case h3 a:hover{color:var(--klein);}
+.case-role{
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fog);
+}
+.case-desc{color:var(--fog);margin:22px 0 26px;max-width:52ch;}
+.case-desc strong{color:var(--ink);font-weight:600;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--hairline);border:1px solid var(--hairline);margin-bottom:26px;}
+.metric{background:var(--gallery);padding:18px 18px 16px;transition:background .35s ease;}
+.metric:hover{background:#EFEFEA;}
+.metric b{
+  display:block;font-weight:800;
+  font-size:clamp(24px,2.4vw,34px);letter-spacing:-.02em;line-height:1;
+}
+.metric small{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--fog);display:block;margin-top:8px;
+}
+.tags{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:26px;}
+.tags span{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--fog);
+}
+.tags span::before{content:'/ ';color:var(--klein);}
+.case-links{display:flex;gap:26px;flex-wrap:wrap;}
+.arrow-link{
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:8px;color:var(--ink);
+  border-bottom:1px solid var(--ink);padding-bottom:3px;
+  transition:color .3s ease,border-color .3s ease,gap .3s var(--ease);
+  background:none;cursor:pointer;
+}
+.arrow-link:hover{color:var(--klein);border-color:var(--klein);gap:14px;}
+.arrow-link::after{content:'→';}
+.arrow-link.back::after{content:none;}
+.arrow-link.back::before{content:'←';}
+
+/* ============ ABOUT (ink panel) ============ */
+.about{background:var(--ink);color:var(--gallery);}
+.about .eyebrow{color:#6C6C76;}
+.about-grid{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
+  gap:clamp(40px,6vw,100px);align-items:start;
+}
+.about h2{
+  font-weight:750;
+  font-size:clamp(30px,4.2vw,58px);line-height:1.12;letter-spacing:-.015em;
+  margin-top:22px;
+}
+.about h2 em{font-style:normal;color:var(--klein);}
+.about-side p{color:#A9A9B2;margin-bottom:20px;max-width:44ch;}
+.about-side p strong{color:var(--gallery);font-weight:600;}
+.facts{margin-top:40px;border-top:1px solid var(--ink-hairline);}
+.fact{
+  display:flex;justify-content:space-between;gap:24px;
+  padding:16px 0;border-bottom:1px solid var(--ink-hairline);
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
+}
+.fact span:first-child{color:#6C6C76;text-transform:uppercase;}
+
+/* portrait */
+.portrait{
+  margin-top:44px;max-width:320px;
+  border:1px solid var(--ink-hairline);
+  padding:10px;
+  background:#17171B;
+}
+.portrait .ph{
+  aspect-ratio:4/5;width:100%;
+  display:flex;align-items:center;justify-content:center;
+  background:#1D1D22;
+  overflow:hidden;
+}
+.portrait .ph img{
+  width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.05);
+  transition:filter .6s ease;
+}
+.portrait:hover .ph img{filter:grayscale(0);}
+.portrait .ph span{
+  font-weight:800;
+  font-size:64px;color:#2C2C33;letter-spacing:-.02em;
+}
+.portrait figcaption{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:#6C6C76;padding:12px 4px 2px;display:flex;justify-content:space-between;
+}
+
+/* ============ CAPABILITIES ============ */
+.cap-row{
+  display:grid;grid-template-columns:minmax(140px,240px) 1fr;
+  gap:24px;padding:26px 0;border-top:1px solid var(--hairline);
+  align-items:baseline;
+}
+.cap-row:last-child{border-bottom:1px solid var(--hairline);}
+.cap-row h4{
+  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--klein);font-weight:500;
+}
+.cap-row p{
+  font-weight:600;
+  font-size:clamp(17px,1.8vw,23px);line-height:1.5;letter-spacing:-.005em;
+}
+.cap-row p span{color:#C9C9C1;transition:color .4s ease;}
+.cap-row:hover p span{color:var(--ink);}
+
+/* ============ LEADERSHIP ============ */
+.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hairline);border:1px solid var(--hairline);}
+.lead-card{background:var(--gallery);padding:clamp(28px,3.5vw,48px);transition:background .35s ease;}
+.lead-card:hover{background:#EFEFEA;}
+.lead-card b{
+  display:block;font-weight:800;
+  font-size:clamp(36px,4.5vw,64px);line-height:1;letter-spacing:-.02em;
+}
+.lead-card h5{
+  font-weight:650;font-size:17px;margin:16px 0 8px;
+  ;
+}
+.lead-card p{color:var(--fog);font-size:15px;max-width:38ch;}
+
+/* ============ CONTACT ============ */
+.contact{padding-bottom:clamp(60px,8vh,90px);}
+.big-mail{
+  display:block;
+  font-weight:800;
+  font-size:clamp(28px,6.4vw,96px);
+  line-height:1.02;letter-spacing:-.02em;text-transform:lowercase;
+  margin:28px 0 8px;
+  position:relative;width:fit-content;max-width:100%;
+  word-break:break-all;
+  transition:color .35s ease;
+}
+.big-mail::after{
+  content:'';position:absolute;left:0;bottom:-6px;height:3px;width:100%;
+  background:var(--klein);transform:scaleX(0);transform-origin:right;
+  transition:transform .55s var(--ease);
+}
+.big-mail:hover{color:var(--klein);}
+.big-mail:hover::after{transform:scaleX(1);transform-origin:left;}
+.contact-meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:44px;}
+
+/* ============ FOOTER ============ */
+footer{
+  border-top:1px solid var(--hairline);
+  padding:22px var(--gutter);
+  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fog);
+}
+
+/* ============ CASE STUDY PAGES ============ */
+.cs-hero{
+  padding:clamp(150px,22vh,220px) 0 clamp(50px,8vh,80px);
+}
+.cs-hero h1{
+  font-weight:800;
+  font-size:clamp(38px,6.4vw,96px);line-height:1;letter-spacing:-.02em;
+  text-transform:uppercase;margin-top:22px;max-width:18ch;
+}
+.cs-meta{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:1px;background:var(--hairline);border:1px solid var(--hairline);
+  margin-top:clamp(36px,6vh,56px);
+}
+.cs-meta div{background:var(--gallery);padding:16px 18px;}
+.cs-meta small{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fog);display:block;margin-bottom:6px;
+}
+.cs-meta span{font-weight:600;font-size:14.5px;}
+.cs-section{padding:clamp(56px,9vh,100px) 0;border-top:1px solid var(--hairline);}
+.cs-section .eyebrow{margin-bottom:26px;}
+.cs-lede{
+  font-weight:600;
+  font-size:clamp(21px,2.6vw,32px);line-height:1.35;letter-spacing:-.01em;
+  max-width:30ch;
+}
+.cs-lede em{font-style:normal;color:var(--klein);}
+.cs-cols{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:clamp(32px,5vw,80px);align-items:start;
+}
+.cs-body p{color:#55555E;margin-bottom:18px;max-width:58ch;}
+.cs-body p strong{color:var(--ink);font-weight:600;}
+.cs-body ul{list-style:none;margin:8px 0 18px;}
+.cs-body li{
+  padding:12px 0;border-bottom:1px solid var(--hairline);
+  color:#55555E;font-size:15.5px;
+}
+.cs-body li strong{color:var(--ink);font-weight:600;}
+.cs-body li::before{content:'— ';color:var(--klein);}
+
+/* challenge blocks */
+.challenge{
+  border:1px solid var(--hairline);
+  padding:clamp(24px,3vw,40px);
+  margin-bottom:22px;
+  background:var(--gallery);
+  transition:border-color .35s ease;
+}
+.challenge:hover{border-color:var(--ink);}
+.challenge h4{
+  font-weight:700;
+  font-size:clamp(18px,2vw,24px);letter-spacing:-.01em;margin-bottom:12px;
+}
+.challenge .q{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--klein);display:block;margin-bottom:14px;
+}
+.challenge p{color:#55555E;font-size:15.5px;max-width:62ch;}
+.challenge p strong{color:var(--ink);font-weight:600;}
+
+/* lessons */
+.lesson{
+  border-left:2px solid var(--klein);
+  padding:6px 0 6px clamp(24px,3vw,44px);
+  font-weight:600;
+  font-size:clamp(19px,2.2vw,27px);line-height:1.5;letter-spacing:-.008em;
+  max-width:36ch;
+}
+.lesson small{
+  display:block;margin-top:18px;
+  font-family:var(--mono);font-weight:400;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--fog);
+}
+
+/* architecture diagram */
+.diagram-wrap{
+  border:1px solid var(--hairline);
+  background:#FBFBF9;
+  padding:clamp(20px,3vw,44px);
+  overflow-x:auto;
+}
+.diagram-wrap svg{display:block;margin:0 auto;min-width:640px;max-width:900px;width:100%;height:auto;}
+.diagram-caption{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fog);margin-top:16px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+/* svg internals */
+.dg-node rect{
+  fill:var(--gallery);stroke:var(--ink);stroke-width:1.25;
+}
+.dg-node.accent rect{stroke:var(--klein);stroke-width:1.5;}
+.dg-node.dark rect{fill:var(--ink);stroke:var(--ink);}
+.dg-node text{
+  font-family:'Archivo',sans-serif;font-size:13.5px;font-weight:650;
+  fill:var(--ink);letter-spacing:-.01em;
+}
+.dg-node.dark text{fill:var(--gallery);}
+.dg-node .sub{
+  font-family:'Spline Sans Mono',monospace;font-size:9.5px;font-weight:400;
+  fill:var(--fog);letter-spacing:.08em;text-transform:uppercase;
+}
+.dg-node.dark .sub{fill:#8B8B95;}
+.dg-wire{
+  fill:none;stroke:var(--klein);stroke-width:1.5;
+  stroke-dasharray:600;stroke-dashoffset:600;
+}
+.dg-wire.loop{stroke:var(--fog);stroke-dasharray:4 5;}
+.dg-arrow{fill:var(--klein);opacity:0;}
+.dg-label{
+  font-family:'Spline Sans Mono',monospace;font-size:9.5px;
+  fill:var(--fog);letter-spacing:.1em;text-transform:uppercase;
+}
+.dg-node{opacity:0;transform:translateY(10px);}
+/* animation on .drawn */
+.diagram-wrap.drawn .dg-node{
+  animation:nodeIn .7s var(--ease) forwards;
+}
+.diagram-wrap.drawn .dg-wire:not(.loop){
+  animation:wire 1.2s var(--ease) forwards;
+}
+.diagram-wrap.drawn .dg-wire.loop{
+  animation:wire 1.2s var(--ease) forwards;
+}
+.diagram-wrap.drawn .dg-arrow{
+  animation:fadeIn .4s ease forwards;
+}
+@keyframes nodeIn{to{opacity:1;transform:none;}}
+@keyframes wire{to{stroke-dashoffset:0;}}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* staggering (applied via inline style --d) */
+.dg-node,.dg-wire,.dg-arrow{animation-delay:var(--d,0s) !important;}
+
+/* case prev/next */
+.cs-nav{
+  border-top:1px solid var(--hairline);
+  display:grid;grid-template-columns:1fr 1fr;
+}
+.cs-nav a{
+  padding:clamp(32px,5vh,56px) var(--gutter);
+  display:flex;flex-direction:column;gap:10px;
+  transition:background .35s ease;
+}
+.cs-nav a:hover{background:#EFEFEA;}
+.cs-nav a:first-child{border-right:1px solid var(--hairline);}
+.cs-nav small{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--fog);
+}
+.cs-nav b{
+  font-weight:750;
+  font-size:clamp(17px,2vw,24px);letter-spacing:-.01em;line-height:1.2;
+}
+.cs-nav a:last-child{text-align:right;align-items:flex-end;}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:900px){
+  .case{grid-template-columns:1fr;}
+  .case-left{position:static;}
+  .about-grid{grid-template-columns:1fr;}
+  .lead-grid{grid-template-columns:1fr;}
+  .cs-cols{grid-template-columns:1fr;}
+  nav{display:none;}
+  nav.open{display:flex;position:fixed;inset:0;background:var(--gallery);flex-direction:column;justify-content:center;align-items:center;gap:28px;z-index:60;}
+  nav.open a{font-size:18px;}
+  .menu-btn{display:block;}
+}
+
+/* ============ LIGHTBOX / MODAL ============ */
+.lightbox-modal{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(0,0,0,.85);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;
+}
+.lightbox-modal.open{display:flex;}
+.lightbox-content{
+  background:var(--gallery);
+  border-radius:8px;
+  max-width:1200px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  position:relative;
+}
+.lightbox-close{
+  position:absolute;top:16px;right:16px;z-index:1001;
+  background:var(--ink);color:var(--gallery);
+  border:none;cursor:pointer;width:44px;height:44px;
+  font-size:28px;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:background .3s ease;font-weight:300;
+}
+.lightbox-close:hover{background:var(--klein);}
+.lightbox-inner{padding:clamp(16px,4vw,40px);}
+.lightbox-img{width:100%;height:auto;display:block;border-radius:4px;margin-bottom:28px;}
+.lightbox-iframe{
+  width:100%;height:600px;border:none;border-radius:4px;
+  display:block;margin-top:20px;
+}
+
+/* screenshot grid */
+.cs-screenshots{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:1px;background:var(--hairline);border:1px solid var(--hairline);
+  margin-top:clamp(20px,3vw,32px);
+}
+.cs-screenshot{
+  background:var(--gallery);padding:2px;cursor:pointer;
+  transition:background .35s ease;position:relative;overflow:hidden;
+}
+.cs-screenshot:hover{background:#EFEFEA;}
+.cs-screenshot img{
+  width:100%;height:auto;display:block;
+  transition:transform .4s var(--ease);
+}
+.cs-screenshot:hover img{transform:scale(1.02);}
+.cs-screenshot-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.6));
+  color:var(--gallery);padding:40px 12px 12px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;opacity:0;transition:opacity .3s ease;
+}
+.cs-screenshot:hover .cs-screenshot-label{opacity:1;}
+
+/* full-width iframe preview */
+.cs-preview{
+  border:1px solid var(--hairline);
+  padding:0;overflow:hidden;border-radius:4px;
+  margin-top:clamp(24px,3.5vw,40px);
+}
+.cs-preview-label{
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--fog);padding:12px 16px;background:var(--gallery);
+  border-bottom:1px solid var(--hairline);
+}
+.cs-preview iframe{
+  width:100%;height:600px;display:block;border:none;
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;}
+  #intro{display:none;}
+  body{overflow:auto !important;}
+  header,.hero h1 .line i,.hero-foot,.reveal{opacity:1 !important;transform:none !important;}
+  .dg-node{opacity:1 !important;transform:none !important;}
+  .dg-wire{stroke-dashoffset:0 !important;}
+  .dg-arrow{opacity:1 !important;}
+}
+
+</style>
+</head>
+<body>
+<header id="header">
+  <a class="logo" href="index.html">Soham<em>.</em>Patil</a>
+  <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
+  <nav id="nav">
+    <a href="index.html#work">Work</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#capabilities">Capabilities</a>
+    <a href="index.html#contact" class="nav-cta">Contact</a>
+  </nav>
+</header>
+<section class="cs-hero">
+  <div class="wrap">
+    <div class="eyebrow">Engineering Case Study — 01</div>
+    <h1>An offline-first POS that never stops billing</h1>
+    <div class="cs-meta reveal">
+      <div><small>Client</small><span>K2 Chicken — franchise retail</span></div>
+      <div><small>Timeline</small><span>Dec 2025 — Feb 2026</span></div>
+      <div><small>Role</small><span>Freelance full-stack developer</span></div>
+      <div><small>Stack</small><span>React · Next.js · Node.js · IndexedDB</span></div>
+      <div><small>Status</small><span>In production, 3 locations</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="cs-cols">
+      <div class="reveal">
+        <div class="eyebrow">The Problem</div>
+        <p class="cs-lede">When the internet goes down, <em>everything stops.</em></p>
+      </div>
+      <div class="cs-body reveal">
+        <p>
+          The franchise operates in areas with frequent power outages — 4 to 6 hours of no internet is routine. 
+          With traditional POS systems, that means:
+        </p>
+        <ul>
+          <li>No way to process payments — customers leave</li>
+          <li>Inventory records go out of sync</li>
+          <li>Sales data vanishes until the connection returns</li>
+        </ul>
+        <p>
+          The real requirement was simple: the counter needs to keep working whether the internet exists or not.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="cs-cols">
+      <div class="reveal">
+        <div class="eyebrow">The Solution</div>
+        <p class="cs-lede">Treat offline as the <em>default state,</em> not the failure state.</p>
+      </div>
+      <div class="cs-body reveal">
+        <p>
+          I built the system with offline as the starting point: every transaction goes to 
+          <span style="color:var(--klein);font-weight:600;">IndexedDB in the browser first</span>, instantly, regardless of connection. 
+          A background sync engine watches for the network and reconciles the queue automatically — cashiers don't have to think about it.
+        </p>
+        <p>
+          The full system handles inventory management, billing, customer profiles, loyalty programs, 
+          sales reports, and role-based access for all three locations.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:26px">Product</div>
+    <p style="color:var(--fog);margin-bottom:18px;max-width:58ch;">The billing dashboard below runs live — add items to cart, process orders, and see how the offline-first system handles real transactions.</p>
+    <div class="cs-preview reveal">
+      <div class="cs-preview-label">Live Billing Interface</div>
+      <iframe src="https://k2-chicken-pos-web.vercel.app/store/pos" title="K2ChickenPOS Live Demo"></iframe>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:34px">Architecture</div>
+    <div class="diagram-wrap">
+      <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="K2ChickenPOS architecture: cashier to POS frontend to IndexedDB, then sync engine to Node API to cloud database">
+        <!-- Row 1 -->
+        <g class="dg-node" style="--d:.0s">
+          <rect x="20" y="40" width="180" height="64" rx="2"/>
+          <text x="36" y="68">Cashier</text>
+          <text class="sub" x="36" y="88">Store counter</text>
+        </g>
+        <path class="dg-wire" style="--d:.15s" d="M200,72 L272,72"/>
+        <polygon class="dg-arrow" style="--d:.5s" points="272,67 282,72 272,77"/>
+        <g class="dg-node" style="--d:.2s">
+          <rect x="284" y="40" width="180" height="64" rx="2"/>
+          <text x="300" y="68">POS Frontend</text>
+          <text class="sub" x="300" y="88">React · Next.js</text>
+        </g>
+        <path class="dg-wire" style="--d:.4s" d="M464,72 L536,72"/>
+        <polygon class="dg-arrow" style="--d:.75s" points="536,67 546,72 536,77"/>
+        <text class="dg-label" x="470" y="62">writes locally</text>
+        <g class="dg-node accent" style="--d:.45s">
+          <rect x="548" y="40" width="200" height="64" rx="2"/>
+          <text x="564" y="68">IndexedDB</text>
+          <text class="sub" x="564" y="88">Offline transaction queue</text>
+        </g>
+        <!-- offline loop -->
+        <path class="dg-wire loop" style="--d:.7s" d="M374,104 C374,150 548,150 620,112"/>
+        <text class="dg-label" x="386" y="164">offline mode — billing continues</text>
+        <!-- down -->
+        <path class="dg-wire" style="--d:.85s" d="M648,104 L648,206"/>
+        <polygon class="dg-arrow" style="--d:1.2s" points="643,206 648,216 653,206"/>
+        <text class="dg-label" x="662" y="164">on reconnect</text>
+        <!-- Row 2, right to left -->
+        <g class="dg-node" style="--d:.95s">
+          <rect x="548" y="220" width="200" height="64" rx="2"/>
+          <text x="564" y="248">Sync Engine</text>
+          <text class="sub" x="564" y="268">Background reconciliation</text>
+        </g>
+        <path class="dg-wire" style="--d:1.15s" d="M548,252 L476,252"/>
+        <polygon class="dg-arrow" style="--d:1.5s" points="476,257 466,252 476,247"/>
+        <g class="dg-node" style="--d:1.2s">
+          <rect x="284" y="220" width="180" height="64" rx="2"/>
+          <text x="300" y="248">Node API</text>
+          <text class="sub" x="300" y="268">REST · validation</text>
+        </g>
+        <path class="dg-wire" style="--d:1.4s" d="M284,252 L212,252"/>
+        <polygon class="dg-arrow" style="--d:1.75s" points="212,257 202,252 212,247"/>
+        <g class="dg-node dark" style="--d:1.45s">
+          <rect x="20" y="220" width="180" height="64" rx="2"/>
+          <text x="36" y="248">Cloud Database</text>
+          <text class="sub" x="36" y="268">Source of truth</text>
+        </g>
+      </svg>
+      <div class="diagram-caption">
+        <span>Fig. 01 — Offline-first data flow</span>
+        <span>Every transaction lands locally first, then syncs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:34px">Challenges &amp; Trade-offs</div>
+    <div class="reveal">
+      <div class="challenge">
+        <span class="q">Challenge 01</span>
+        <h4>How do you prevent data conflicts when the connection returns?</h4>
+        <p>
+          Three stores syncing hours of queued transactions at once is a recipe
+          for collisions. I resolved it with <strong>timestamp-based sync and
+          explicit conflict-resolution rules</strong> — local transactions carry
+          their creation time, and the sync engine reconciles against the cloud
+          record deterministically instead of last-write-wins guesswork.
+        </p>
+      </div>
+      <div class="challenge">
+        <span class="q">Challenge 02</span>
+        <h4>How do you keep inventory honest across three stores?</h4>
+        <p>
+          Manual stock counts were the original source of drift. I built
+          <strong>automated stock tracking and reconciliation workflows</strong> into
+          the sync layer, so inventory adjusts from actual transactions rather
+          than end-of-day memory — measurably reducing discrepancies.
+        </p>
+      </div>
+      <div class="challenge">
+        <span class="q">Challenge 03</span>
+        <h4>How much system do you give a non-technical cashier?</h4>
+        <p>
+          Franchise staff are not developers. <strong>Role-based access
+          control</strong> keeps the counter view simple — billing and customers —
+          while owners see inventory, loyalty and sales reporting. The trade-off
+          is more upfront design; the payoff is software people actually use.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:34px">Impact</div>
+    <div class="metrics reveal" style="margin-bottom:0">
+      <div class="metric"><b>6 hrs</b><small>Offline & still billing</small></div>
+      <div class="metric"><b>3</b><small>Franchise locations</small></div>
+      <div class="metric"><b>80</b><small>Transactions daily</small></div>
+      <div class="metric"><b>100%</b><small>Billing availability</small></div>
+    </div>
+  </div>
+</section>
+
+<section class="cs-section">
+  <div class="wrap">
+    <div class="eyebrow" style="margin-bottom:34px">Lessons Learned</div>
+    <div class="lesson reveal">
+      Building offline-first taught me that reliability often matters more than
+      new features. Synchronization and edge cases demanded more careful design
+      than anything visible in the UI.
+      <small>— The part of the system users never see is the part they depend on most</small>
+    </div>
+  </div>
+</section>
+
+<div class="cs-nav">
+  <a href="index.html#work"><small>← Back</small><b>All case studies</b></a>
+  <a href="case-ai-analyzer.html"><small>Next study →</small><b>AI Business Opportunity Analyzer</b></a>
+</div>
+
+<div id="lightbox" class="lightbox-modal">
+  <div class="lightbox-content">
+    <button id="lightbox-close" class="lightbox-close">&times;</button>
+    <div class="lightbox-inner"></div>
+  </div>
+</div>
+<footer>
+  <span>&copy; 2026 Soham Patil</span>
+  <span>Pune, India</span>
+  <span>Designed &amp; built from scratch</span>
+</footer>
+<script>
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const intro = document.getElementById('intro');
+  const body = document.body;
+
+  // ticker duplicate (landing only)
+  const track = document.getElementById('stripTrack');
+  if(track) track.innerHTML += track.innerHTML;
+
+  // intro: play on every landing page load, only suppress on case study pages
+  if(intro){
+    const isLanding = !window.location.pathname.includes('case-');
+    const seen = sessionStorage.getItem('introSeen');
+    if(reduce || (seen && !isLanding)){
+      intro.remove();
+      body.classList.remove('locked');
+      body.classList.add('ready');
+    }else{
+      requestAnimationFrame(()=> requestAnimationFrame(()=> intro.classList.add('play')));
+      setTimeout(()=>{
+        intro.classList.add('lift');
+        body.classList.remove('locked');
+        body.classList.add('ready');
+        sessionStorage.setItem('introSeen','1');
+        setTimeout(()=> intro.remove(), 1400);
+      }, 3200);
+    }
+  }else{
+    body.classList.remove('locked');
+    body.classList.add('ready');
+  }
+
+  // nav scroll state
+  const header = document.getElementById('header');
+  addEventListener('scroll', ()=>{
+    header.classList.toggle('scrolled', scrollY > 40);
+  }, {passive:true});
+
+  // scroll reveals
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+  // architecture diagrams: draw when visible
+  const dio = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('drawn'); dio.unobserve(e.target); }
+    });
+  },{threshold:.35});
+  document.querySelectorAll('.diagram-wrap').forEach(el=> dio.observe(el));
+
+  // lightbox modal
+  const modal = document.getElementById('lightbox');
+  const closeBtn = document.getElementById('lightbox-close');
+  const screenshots = document.querySelectorAll('.cs-screenshot, .lightbox-trigger');
+  if(modal && closeBtn){
+    screenshots.forEach(ss => {
+      ss.addEventListener('click', (e)=>{
+        const imgSrc = ss.dataset.imgSrc;
+        const iframeSrc = ss.dataset.iframeSrc;
+        const label = ss.dataset.label || '';
+        
+        const inner = modal.querySelector('.lightbox-inner');
+        let content = '';
+        if(imgSrc) content += `<img class="lightbox-img" src="${imgSrc}" alt="${label}" />`;
+        if(iframeSrc) content += `<iframe class="lightbox-iframe" src="${iframeSrc}" title="${label}"></iframe>`;
+        inner.innerHTML = content;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    closeBtn.addEventListener('click', ()=>{
+      modal.classList.remove('open');
+      document.body.style.overflow = 'auto';
+    });
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal){
+        modal.classList.remove('open');
+        document.body.style.overflow = 'auto';
+      }
+    });
+  }
+
+  // mobile menu
+  const menuBtn = document.getElementById('menuBtn');
+  const nav = document.getElementById('nav');
+  if(menuBtn && nav){
+    menuBtn.addEventListener('click', ()=>{
+      const open = nav.classList.toggle('open');
+      menuBtn.textContent = open ? 'Close' : 'Menu';
+    });
+    nav.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=>{
+      nav.classList.remove('open');
+      menuBtn.textContent = 'Menu';
+    }));
+  }
+})();
+
+</script>
+</body>
+</html>
