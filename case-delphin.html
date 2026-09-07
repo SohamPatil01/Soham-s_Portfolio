@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>K2ChickenPOS — Engineering Case Study — Soham Patil</title>
-<meta name="description" content="How an offline-first POS keeps 3 franchise stores billing through 6-hour network outages. Architecture, challenges, and lessons." />
+<title>Delphin Business Consulting Website — Engineering Case Study — Soham Patil</title>
+<meta name="description" content="Professional business consulting website for Delphin — services, case studies, and client-focused navigation built with HTML, CSS, JavaScript, and Bootstrap 5." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -643,14 +643,14 @@ footer{
 </header>
 <section class="cs-hero">
   <div class="wrap">
-    <div class="eyebrow">Engineering Case Study — 02</div>
-    <h1>An offline-first POS that never stops billing</h1>
+    <div class="eyebrow">Engineering Case Study — 04</div>
+    <h1>A consulting site that sells clarity</h1>
     <div class="cs-meta reveal">
-      <div><small>Client</small><span>K2 Chicken — franchise retail</span></div>
-      <div><small>Timeline</small><span>Dec 2025 — Present</span></div>
-      <div><small>Role</small><span>Software Development Intern — AzeelaAI Labs</span></div>
-      <div><small>Stack</small><span>React · Next.js · Node.js · IndexedDB</span></div>
-      <div><small>Status</small><span>In production, 3 locations</span></div>
+      <div><small>Client</small><span>Delphin Business Consulting</span></div>
+      <div><small>Timeline</small><span>Jul 2026 — Sep 2026</span></div>
+      <div><small>Role</small><span>Frontend developer</span></div>
+      <div><small>Stack</small><span>HTML5 · CSS3 · JavaScript · Bootstrap 5</span></div>
+      <div><small>Status</small><span>Live site</span></div>
     </div>
   </div>
 </section>
@@ -660,20 +660,14 @@ footer{
     <div class="cs-cols">
       <div class="reveal">
         <div class="eyebrow">The Problem</div>
-        <p class="cs-lede">When the internet goes down, <em>everything stops.</em></p>
+        <p class="cs-lede">Consulting services are broad. <em>The website has to make them concrete.</em></p>
       </div>
       <div class="cs-body reveal">
         <p>
-          The franchise operates in areas with frequent power outages — 4 to 6 hours of no internet is routine. 
-          With traditional POS systems, that means:
-        </p>
-        <ul>
-          <li>No way to process payments — customers leave</li>
-          <li>Inventory records go out of sync</li>
-          <li>Sales data vanishes until the connection returns</li>
-        </ul>
-        <p>
-          The real requirement was simple: the counter needs to keep working whether the internet exists or not.
+          Delphin needed a professional web presence that covered technology, finance,
+          operations, marketing, and automation solutions — without turning into a
+          wall of jargon. Prospects had to find the right service quickly and trust
+          that the firm could deliver.
         </p>
       </div>
     </div>
@@ -685,17 +679,18 @@ footer{
     <div class="cs-cols">
       <div class="reveal">
         <div class="eyebrow">The Solution</div>
-        <p class="cs-lede">Treat offline as the <em>default state,</em> not the failure state.</p>
+        <p class="cs-lede">Structured sections, <em>client-focused navigation.</em></p>
       </div>
       <div class="cs-body reveal">
         <p>
-          I built the system with offline as the starting point: every transaction goes to 
-          <span style="color:var(--klein);font-weight:600;">IndexedDB in the browser first</span>, instantly, regardless of connection. 
-          A background sync engine watches for the network and reconciles the queue automatically — cashiers don't have to think about it.
+          I built a responsive business website with clear sections for services,
+          case studies, selected work, and business insights. Interactive UI
+          components and Bootstrap 5 layouts keep the experience polished on
+          desktop and mobile while staying fast and maintainable.
         </p>
         <p>
-          The full system handles inventory management, billing, customer profiles, loyalty programs, 
-          sales reports, and role-based access for all three locations.
+          Navigation is organized around what a client needs — not around how the
+          firm is structured internally.
         </p>
       </div>
     </div>
@@ -705,14 +700,11 @@ footer{
 <section class="cs-section">
   <div class="wrap">
     <div class="eyebrow" style="margin-bottom:26px">Product</div>
-    <p style="color:var(--fog);margin-bottom:18px;max-width:58ch;">The billing dashboard handles real transactions — adding items to cart, processing orders, and syncing through an offline-first system built for unreliable connectivity.</p>
-    <!-- Live preview disabled
+    <p style="color:var(--fog);margin-bottom:18px;max-width:58ch;">Explore the live Delphin site below — services, case studies, and client-focused navigation in production.</p>
     <div class="cs-preview reveal">
-      <div class="cs-preview-label">Live Billing Interface</div>
-      <iframe src="https://k2-chicken-pos-web.vercel.app/store/pos" title="K2ChickenPOS Live Demo"></iframe>
+      <div class="cs-preview-label">Live Site — www.delphin.in</div>
+      <iframe src="https://www.delphin.in/" title="Delphin Business Consulting Live Site"></iframe>
     </div>
-    -->
-    <a class="arrow-link" href="https://k2-chicken-pos-web.vercel.app/store/pos" target="_blank" rel="noopener">View live demo &rarr;</a>
   </div>
 </section>
 
@@ -720,59 +712,44 @@ footer{
   <div class="wrap">
     <div class="eyebrow" style="margin-bottom:34px">Architecture</div>
     <div class="diagram-wrap">
-      <svg viewBox="0 0 880 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="K2ChickenPOS architecture: cashier to POS frontend to IndexedDB, then sync engine to Node API to cloud database">
-        <!-- Row 1 -->
+      <svg viewBox="0 0 880 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Delphin site structure: hero to services, case studies, insights, and contact">
         <g class="dg-node" style="--d:.0s">
-          <rect x="20" y="40" width="180" height="64" rx="2"/>
-          <text x="36" y="68">Cashier</text>
-          <text class="sub" x="36" y="88">Store counter</text>
+          <rect x="40" y="40" width="160" height="64" rx="2"/>
+          <text x="56" y="68">Hero</text>
+          <text class="sub" x="56" y="88">Brand · CTA</text>
         </g>
-        <path class="dg-wire" style="--d:.15s" d="M200,72 L272,72"/>
-        <polygon class="dg-arrow" style="--d:.5s" points="272,67 282,72 272,77"/>
-        <g class="dg-node" style="--d:.2s">
-          <rect x="284" y="40" width="180" height="64" rx="2"/>
-          <text x="300" y="68">POS Frontend</text>
-          <text class="sub" x="300" y="88">React · Next.js</text>
+        <path class="dg-wire" style="--d:.2s" d="M200,72 L260,72"/>
+        <polygon class="dg-arrow" style="--d:.55s" points="260,67 270,72 260,77"/>
+        <g class="dg-node accent" style="--d:.25s">
+          <rect x="272" y="40" width="160" height="64" rx="2"/>
+          <text x="288" y="68">Services</text>
+          <text class="sub" x="288" y="88">5 practice areas</text>
         </g>
-        <path class="dg-wire" style="--d:.4s" d="M464,72 L536,72"/>
-        <polygon class="dg-arrow" style="--d:.75s" points="536,67 546,72 536,77"/>
-        <text class="dg-label" x="470" y="62">writes locally</text>
-        <g class="dg-node accent" style="--d:.45s">
-          <rect x="548" y="40" width="200" height="64" rx="2"/>
-          <text x="564" y="68">IndexedDB</text>
-          <text class="sub" x="564" y="88">Offline transaction queue</text>
+        <path class="dg-wire" style="--d:.45s" d="M432,72 L492,72"/>
+        <polygon class="dg-arrow" style="--d:.8s" points="492,67 502,72 492,77"/>
+        <g class="dg-node" style="--d:.5s">
+          <rect x="504" y="40" width="160" height="64" rx="2"/>
+          <text x="520" y="68">Case Studies</text>
+          <text class="sub" x="520" y="88">Selected work</text>
         </g>
-        <!-- offline loop -->
-        <path class="dg-wire loop" style="--d:.7s" d="M374,104 C374,150 548,150 620,112"/>
-        <text class="dg-label" x="386" y="164">offline mode — billing continues</text>
-        <!-- down -->
-        <path class="dg-wire" style="--d:.85s" d="M648,104 L648,206"/>
-        <polygon class="dg-arrow" style="--d:1.2s" points="643,206 648,216 653,206"/>
-        <text class="dg-label" x="662" y="164">on reconnect</text>
-        <!-- Row 2, right to left -->
-        <g class="dg-node" style="--d:.95s">
-          <rect x="548" y="220" width="200" height="64" rx="2"/>
-          <text x="564" y="248">Sync Engine</text>
-          <text class="sub" x="564" y="268">Background reconciliation</text>
+        <path class="dg-wire" style="--d:.7s" d="M664,72 L724,72"/>
+        <polygon class="dg-arrow" style="--d:1.05s" points="724,67 734,72 724,77"/>
+        <g class="dg-node" style="--d:.75s">
+          <rect x="736" y="40" width="120" height="64" rx="2"/>
+          <text x="752" y="68">Contact</text>
+          <text class="sub" x="752" y="88">Lead capture</text>
         </g>
-        <path class="dg-wire" style="--d:1.15s" d="M548,252 L476,252"/>
-        <polygon class="dg-arrow" style="--d:1.5s" points="476,257 466,252 476,247"/>
-        <g class="dg-node" style="--d:1.2s">
-          <rect x="284" y="220" width="180" height="64" rx="2"/>
-          <text x="300" y="248">Node API</text>
-          <text class="sub" x="300" y="268">REST · validation</text>
+        <g class="dg-node dark" style="--d:1s">
+          <rect x="272" y="160" width="392" height="64" rx="2"/>
+          <text x="288" y="188">Insights · Interactive UI · Responsive Bootstrap layout</text>
+          <text class="sub" x="288" y="208">HTML5 · CSS3 · JavaScript</text>
         </g>
-        <path class="dg-wire" style="--d:1.4s" d="M284,252 L212,252"/>
-        <polygon class="dg-arrow" style="--d:1.75s" points="212,257 202,252 212,247"/>
-        <g class="dg-node dark" style="--d:1.45s">
-          <rect x="20" y="220" width="180" height="64" rx="2"/>
-          <text x="36" y="248">Cloud Database</text>
-          <text class="sub" x="36" y="268">Source of truth</text>
-        </g>
+        <path class="dg-wire" style="--d:.9s" d="M352,104 L352,160"/>
+        <path class="dg-wire" style="--d:.95s" d="M584,104 L584,160"/>
       </svg>
       <div class="diagram-caption">
-        <span>Fig. 01 — Offline-first data flow</span>
-        <span>Every transaction lands locally first, then syncs</span>
+        <span>Fig. 04 — Site structure</span>
+        <span>Services and proof sit above the fold of the conversion path</span>
       </div>
     </div>
   </div>
@@ -784,33 +761,20 @@ footer{
     <div class="reveal">
       <div class="challenge">
         <span class="q">Challenge 01</span>
-        <h4>How do you prevent data conflicts when the connection returns?</h4>
+        <h4>How do you present five service lines without overwhelming visitors?</h4>
         <p>
-          Three stores syncing hours of queued transactions at once is a recipe
-          for collisions. I resolved it with <strong>timestamp-based sync and
-          explicit conflict-resolution rules</strong> — local transactions carry
-          their creation time, and the sync engine reconciles against the cloud
-          record deterministically instead of last-write-wins guesswork.
+          Each practice area got a dedicated section with a short value statement
+          and a clear path to examples — so visitors scan for relevance instead of
+          reading a brochure cover to cover.
         </p>
       </div>
       <div class="challenge">
         <span class="q">Challenge 02</span>
-        <h4>How do you keep inventory honest across three stores?</h4>
+        <h4>When is a framework worth it for a marketing site?</h4>
         <p>
-          Manual stock counts were the original source of drift. I built
-          <strong>automated stock tracking and reconciliation workflows</strong> into
-          the sync layer, so inventory adjusts from actual transactions rather
-          than end-of-day memory — measurably reducing discrepancies.
-        </p>
-      </div>
-      <div class="challenge">
-        <span class="q">Challenge 03</span>
-        <h4>How much system do you give a non-technical cashier?</h4>
-        <p>
-          Franchise staff are not developers. <strong>Role-based access
-          control</strong> keeps the counter view simple — billing and customers —
-          while owners see inventory, loyalty and sales reporting. The trade-off
-          is more upfront design; the payoff is software people actually use.
+          Bootstrap 5 covered responsive grid and interactive components without
+          a heavy SPA build. That kept delivery fast while leaving room for
+          custom CSS and JavaScript where the design needed personality.
         </p>
       </div>
     </div>
@@ -821,10 +785,9 @@ footer{
   <div class="wrap">
     <div class="eyebrow" style="margin-bottom:34px">Impact</div>
     <div class="metrics reveal" style="margin-bottom:0">
-      <div class="metric"><b>6 hrs</b><small>Offline & still billing</small></div>
-      <div class="metric"><b>3</b><small>Franchise locations</small></div>
-      <div class="metric"><b>80</b><small>Transactions daily</small></div>
-      <div class="metric"><b>100%</b><small>Billing availability</small></div>
+      <div class="metric"><b>5</b><small>Service areas covered</small></div>
+      <div class="metric"><b>Responsive</b><small>Desktop &amp; mobile</small></div>
+      <div class="metric"><b>Live</b><small>Client-facing site</small></div>
     </div>
   </div>
 </section>
@@ -833,17 +796,16 @@ footer{
   <div class="wrap">
     <div class="eyebrow" style="margin-bottom:34px">Lessons Learned</div>
     <div class="lesson reveal">
-      Building offline-first taught me that reliability often matters more than
-      new features. Synchronization and edge cases demanded more careful design
-      than anything visible in the UI.
-      <small>— The part of the system users never see is the part they depend on most</small>
+      A consulting website succeeds when a stranger can answer three questions
+      in under a minute: what you do, who it's for, and what to do next.
+      <small>— Clarity beats completeness on first visit</small>
     </div>
   </div>
 </section>
 
 <div class="cs-nav">
-  <a href="case-chicken-vicken.html"><small>← Previous study</small><b>K2 Chicken Ordering Platform</b></a>
-  <a href="case-ai-analyzer.html"><small>Next study →</small><b>AI Business Opportunity Analyzer</b></a>
+  <a href="case-ai-analyzer.html"><small>← Previous study</small><b>AI Business Opportunity Analyzer</b></a>
+  <a href="case-traffic-detection.html"><small>Next study →</small><b>AI Traffic Violation Detection</b></a>
 </div>
 
 <div id="lightbox" class="lightbox-modal">
@@ -857,6 +819,7 @@ footer{
   <span>Pune, India</span>
   <span>Designed &amp; built from scratch</span>
 </footer>
+
 <script>
 (function(){
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
