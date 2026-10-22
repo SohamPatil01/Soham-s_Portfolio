@@ -1,1081 +1,136 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Soham Patil — Full Stack Developer</title>
-<meta name="description" content="Soham Patil — Full Stack Developer. Computer Engineering graduate building production web platforms, offline-first POS systems, and AI-powered tools at AzeelaAI." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-/* ============ TOKENS ============ */
-:root{
-  --gallery:#F6F6F3;
-  --ink:#101013;
-  --klein:#2230E8;
-  --fog:#83838C;
-  --hairline:#E2E2DC;
-  --ink-hairline:#26262C;
-  --display:'Lora',serif;
-  --body:'Inter',sans-serif;
-  --mono:'Inter',sans-serif;
-  --ease:cubic-bezier(.25,.46,.45,.94);
-  --gutter:clamp(20px,5vw,72px);
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{
-  background:var(--gallery);
-  color:var(--ink);
-  font-family:var(--body);
-  font-size:17px;
-  line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
-}
-body.locked{overflow:hidden;}
-::selection{background:var(--klein);color:#fff;}
-a{color:inherit;text-decoration:none;}
-img{max-width:100%;display:block;}
-
-.wrap{max-width:1360px;margin:0 auto;padding:0 var(--gutter);}
-.wrap-narrow{max-width:960px;margin:0 auto;padding:0 var(--gutter);}
-.eyebrow{
-  font-family:var(--mono);
-  font-size:12px;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--fog);
-  display:flex;align-items:center;gap:14px;
-}
-.eyebrow::before{content:'';width:28px;height:1px;background:var(--klein);}
-
-/* ============ INTRO OVERLAY ============ */
-#intro{
-  position:fixed;inset:0;z-index:100;
-  background:var(--ink);color:var(--gallery);
-  display:flex;flex-direction:column;justify-content:center;
-  padding:0 var(--gutter);
-  transition:transform 1.4s var(--ease);
-}
-#intro.lift{transform:translateY(-100%);}
-.intro-line{overflow:hidden;}
-.intro-line span{
-  display:block;
-  font-weight:700;
-  font-size:clamp(64px,15vw,220px);
-  line-height:.92;
-  letter-spacing:-.015em;
-  text-transform:uppercase;
-  transform:translateY(110%);
-  transition:transform 1.3s var(--ease);
-  opacity:1;
-}
-#intro.play .intro-line span{transform:translateY(0);}
-.intro-line:nth-child(2) span{transition-delay:.12s;}
-.intro-rule{
-  height:2px;width:0;background:var(--klein);
-  margin:34px 0 18px;
-  transition:width 1s var(--ease) .55s;
-}
-#intro.play .intro-rule{width:min(420px,60%);}
-.intro-meta{
-  font-family:var(--mono);font-size:12px;letter-spacing:.16em;
-  text-transform:uppercase;color:#6C6C76;
-  opacity:0;transform:translateY(10px);
-  transition:opacity .7s ease .8s,transform .7s var(--ease) .8s;
-  display:flex;gap:40px;flex-wrap:wrap;
-}
-#intro.play .intro-meta{opacity:1;transform:none;}
-
-/* ============ NAV ============ */
-header{
-  position:fixed;top:0;left:0;right:0;z-index:50;
-  padding:22px var(--gutter);
-  display:flex;justify-content:space-between;align-items:center;
-  opacity:0;transform:translateY(-12px);
-  transition:opacity .8s ease,transform .8s var(--ease),background .3s ease,padding .3s ease;
-}
-body.ready header{opacity:1;transform:none;}
-header.scrolled{
-  background:rgba(246,246,243,.82);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  padding:14px var(--gutter);
-  border-bottom:1px solid var(--hairline);
-}
-.logo{
-  font-weight:800;
-  text-transform:uppercase;letter-spacing:-.01em;font-size:17px;
-}
-.logo em{font-style:normal;color:var(--klein);}
-nav{display:flex;gap:34px;}
-nav a{
-  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  position:relative;padding:4px 0;color:var(--ink);
-}
-nav a::after{
-  content:'';position:absolute;left:0;bottom:0;height:1px;width:100%;
-  background:var(--klein);transform:scaleX(0);transform-origin:right;
-  transition:transform .4s var(--ease);
-}
-nav a:hover::after{transform:scaleX(1);transform-origin:left;}
-.nav-cta{color:var(--klein) !important;}
-.menu-btn{
-  display:none;background:none;border:none;cursor:pointer;z-index:70;
-  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink);
-}
-
-/* ============ HERO (landing) ============ */
-.hero{
-  min-height:100svh;
-  display:flex;flex-direction:column;justify-content:flex-end;
-  padding:0 var(--gutter) clamp(48px,8vh,90px);
-  position:relative;
-}
-.hero h1{
-  font-weight:800;
-  ;
-  font-size:clamp(44px,8.6vw,132px);
-  line-height:.98;
-  letter-spacing:-.02em;
-  text-transform:uppercase;
-  max-width:15ch;
-}
-.hero h1 .line{display:block;overflow:hidden;}
-.hero h1 .line i{
-  font-style:normal;display:block;
-  transform:translateY(110%);
-  transition:transform 1.1s var(--ease);
-}
-body.ready .hero h1 .line i{transform:none;}
-body.ready .hero h1 .line:nth-child(2) i{transition-delay:.08s;}
-body.ready .hero h1 .line:nth-child(3) i{transition-delay:.16s;}
-.hero h1 em{font-style:normal;color:var(--klein);}
-.hero-foot{
-  display:flex;justify-content:space-between;align-items:flex-end;gap:40px;
-  margin-top:clamp(32px,5vh,56px);flex-wrap:wrap;
-  opacity:0;transform:translateY(16px);
-  transition:opacity .9s ease .35s,transform .9s var(--ease) .35s;
-}
-body.ready .hero-foot{opacity:1;transform:none;}
-.hero-foot p{max-width:44ch;color:var(--fog);font-size:16px;}
-.hero-foot p strong{color:var(--ink);font-weight:600;}
-.scroll-hint{
-  font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--fog);display:flex;align-items:center;gap:12px;white-space:nowrap;
-}
-.scroll-hint::after{
-  content:'';width:1px;height:44px;background:var(--ink);
-  animation:drip 2.2s var(--ease) infinite;
-  transform-origin:top;
-}
-@keyframes drip{0%{transform:scaleY(0);transform-origin:top;}45%{transform:scaleY(1);transform-origin:top;}55%{transform:scaleY(1);transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;}}
-
-/* ============ TICKER STRIP ============ */
-.strip{
-  border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
-  padding:18px 0;overflow:hidden;
-}
-.strip-track{
-  display:flex;gap:64px;width:max-content;
-  animation:ticker 34s linear infinite;
-}
-.strip:hover .strip-track{animation-play-state:paused;}
-.strip-track span{
-  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--fog);white-space:nowrap;display:flex;align-items:center;gap:64px;
-}
-.strip-track span::after{content:'◆';color:var(--klein);font-size:8px;}
-@keyframes ticker{to{transform:translateX(-50%);}}
-
-/* ============ SECTIONS ============ */
-section{padding:clamp(90px,14vh,160px) 0;}
-.section-head{
-  display:flex;justify-content:space-between;align-items:flex-end;
-  margin-bottom:clamp(48px,8vh,84px);gap:32px;flex-wrap:wrap;
-}
-.section-head h2{
-  font-weight:800;
-  font-size:clamp(36px,5.6vw,80px);line-height:1;
-  letter-spacing:-.02em;text-transform:uppercase;margin-top:18px;
-}
-.section-head .count{
-  font-family:var(--mono);font-size:13px;color:var(--fog);letter-spacing:.1em;
-}
-.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s var(--ease);}
-.reveal.in{opacity:1;transform:none;}
-
-/* ============ WORK (landing) ============ */
-.case{
-  display:grid;
-  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
-  gap:clamp(32px,5vw,80px);
-  padding:clamp(44px,7vh,72px) 0;
-  border-top:1px solid var(--hairline);
-  align-items:start;
-}
-.case:last-of-type{border-bottom:1px solid var(--hairline);}
-.case-left{position:sticky;top:110px;}
-.case-idx{
-  font-family:var(--mono);font-size:12px;color:var(--klein);letter-spacing:.14em;
-  margin-bottom:18px;display:block;
-}
-.case h3{
-  font-weight:750;
-  font-size:clamp(28px,3.6vw,52px);line-height:1.04;letter-spacing:-.015em;
-  margin-bottom:16px;
-}
-.case h3 a{transition:color .3s ease;}
-.case h3 a:hover{color:var(--klein);}
-.case-role{
-  font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--fog);
-}
-.case-desc{color:var(--fog);margin:22px 0 26px;max-width:52ch;}
-.case-desc strong{color:var(--ink);font-weight:600;}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--hairline);border:1px solid var(--hairline);margin-bottom:26px;}
-.metric{background:var(--gallery);padding:18px 18px 16px;transition:background .35s ease;}
-.metric:hover{background:#EFEFEA;}
-.metric b{
-  display:block;font-weight:800;
-  font-size:clamp(24px,2.4vw,34px);letter-spacing:-.02em;line-height:1;
-}
-.metric small{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--fog);display:block;margin-top:8px;
-}
-.tags{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:26px;}
-.tags span{
-  font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--fog);
-}
-.tags span::before{content:'/ ';color:var(--klein);}
-.case-links{display:flex;gap:26px;flex-wrap:wrap;}
-.arrow-link{
-  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  display:inline-flex;align-items:center;gap:8px;color:var(--ink);
-  border-bottom:1px solid var(--ink);padding-bottom:3px;
-  transition:color .3s ease,border-color .3s ease,gap .3s var(--ease);
-  background:none;cursor:pointer;
-}
-.arrow-link:hover{color:var(--klein);border-color:var(--klein);gap:14px;}
-.arrow-link::after{content:'→';}
-.arrow-link.back::after{content:none;}
-.arrow-link.back::before{content:'←';}
-
-/* ============ ABOUT (ink panel) ============ */
-.about{background:var(--ink);color:var(--gallery);}
-.about .eyebrow{color:#6C6C76;}
-.about-grid{
-  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);
-  gap:clamp(40px,6vw,100px);align-items:start;
-}
-.about h2{
-  font-weight:750;
-  font-size:clamp(30px,4.2vw,58px);line-height:1.12;letter-spacing:-.015em;
-  margin-top:22px;
-}
-.about h2 em{font-style:normal;color:var(--klein);}
-.about-side p{color:#A9A9B2;margin-bottom:20px;max-width:44ch;}
-.about-side p strong{color:var(--gallery);font-weight:600;}
-.facts{margin-top:40px;border-top:1px solid var(--ink-hairline);}
-.fact{
-  display:flex;justify-content:space-between;gap:24px;
-  padding:16px 0;border-bottom:1px solid var(--ink-hairline);
-  font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;
-}
-.fact span:first-child{color:#6C6C76;text-transform:uppercase;}
-
-/* portrait */
-.portrait{
-  margin-top:44px;max-width:320px;
-  border:1px solid var(--ink-hairline);
-  padding:10px;
-  background:#17171B;
-}
-.portrait .ph{
-  aspect-ratio:4/5;width:100%;
-  display:flex;align-items:center;justify-content:center;
-  background:#1D1D22;
-  overflow:hidden;
-}
-.portrait .ph img{
-  width:100%;height:100%;object-fit:cover;
-  filter:grayscale(1) contrast(1.05);
-  transition:filter .6s ease;
-}
-.portrait:hover .ph img{filter:grayscale(0);}
-.portrait .ph span{
-  font-weight:800;
-  font-size:64px;color:#2C2C33;letter-spacing:-.02em;
-}
-.portrait figcaption{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:#6C6C76;padding:12px 4px 2px;display:flex;justify-content:space-between;
-}
-
-/* ============ CAPABILITIES ============ */
-.cap-row{
-  display:grid;grid-template-columns:minmax(140px,240px) 1fr;
-  gap:24px;padding:26px 0;border-top:1px solid var(--hairline);
-  align-items:baseline;
-}
-.cap-row:last-child{border-bottom:1px solid var(--hairline);}
-.cap-row h4{
-  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--klein);font-weight:500;
-}
-.cap-row p{
-  font-weight:600;
-  font-size:clamp(17px,1.8vw,23px);line-height:1.5;letter-spacing:-.005em;
-}
-.cap-row p span{color:#C9C9C1;transition:color .4s ease;}
-.cap-row:hover p span{color:var(--ink);}
-
-/* ============ LEADERSHIP ============ */
-.lead-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--hairline);border:1px solid var(--hairline);}
-.lead-card{background:var(--gallery);padding:clamp(28px,3.5vw,48px);transition:background .35s ease;}
-.lead-card:hover{background:#EFEFEA;}
-.lead-card h5{
-  font-weight:750;
-  font-size:clamp(22px,2.4vw,32px);line-height:1.2;letter-spacing:-.015em;
-  margin:0 0 12px;
-}
-.lead-card .lead-stat{
-  font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--fog);margin-bottom:14px;
-}
-.lead-card p{color:var(--fog);font-size:15px;max-width:38ch;}
-
-/* ============ CONTACT ============ */
-.contact{padding-bottom:clamp(60px,8vh,90px);}
-.big-mail{
-  display:block;
-  font-weight:800;
-  font-size:clamp(28px,6.4vw,87px);
-  line-height:1.02;letter-spacing:-.02em;text-transform:lowercase;
-  margin:28px 0 8px;
-  position:relative;width:fit-content;max-width:100%;
-  word-break:break-all;
-  transition:color .35s ease;
-}
-.big-mail::after{
-  content:'';position:absolute;left:0;bottom:-6px;height:3px;width:100%;
-  background:var(--klein);transform:scaleX(0);transform-origin:right;
-  transition:transform .55s var(--ease);
-}
-.big-mail:hover{color:var(--klein);}
-.big-mail:hover::after{transform:scaleX(1);transform-origin:left;}
-.contact-meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:44px;}
-
-/* ============ FOOTER ============ */
-footer{
-  border-top:1px solid var(--hairline);
-  padding:22px var(--gutter);
-  display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--fog);
-}
-
-/* ============ CASE STUDY PAGES ============ */
-.cs-hero{
-  padding:clamp(150px,22vh,220px) 0 clamp(50px,8vh,80px);
-}
-.cs-hero h1{
-  font-weight:800;
-  font-size:clamp(38px,6.4vw,96px);line-height:1;letter-spacing:-.02em;
-  text-transform:uppercase;margin-top:22px;max-width:18ch;
-}
-.cs-meta{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-  gap:1px;background:var(--hairline);border:1px solid var(--hairline);
-  margin-top:clamp(36px,6vh,56px);
-}
-.cs-meta div{background:var(--gallery);padding:16px 18px;}
-.cs-meta small{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--fog);display:block;margin-bottom:6px;
-}
-.cs-meta span{font-weight:600;font-size:14.5px;}
-.cs-section{padding:clamp(56px,9vh,100px) 0;border-top:1px solid var(--hairline);}
-.cs-section .eyebrow{margin-bottom:26px;}
-.cs-lede{
-  font-weight:600;
-  font-size:clamp(21px,2.6vw,32px);line-height:1.35;letter-spacing:-.01em;
-  max-width:30ch;
-}
-.cs-lede em{font-style:normal;color:var(--klein);}
-.cs-cols{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:clamp(32px,5vw,80px);align-items:start;
-}
-.cs-body p{color:#55555E;margin-bottom:18px;max-width:58ch;}
-.cs-body p strong{color:var(--ink);font-weight:600;}
-.cs-body ul{list-style:none;margin:8px 0 18px;}
-.cs-body li{
-  padding:12px 0;border-bottom:1px solid var(--hairline);
-  color:#55555E;font-size:15.5px;
-}
-.cs-body li strong{color:var(--ink);font-weight:600;}
-.cs-body li::before{content:'— ';color:var(--klein);}
-
-/* challenge blocks */
-.challenge{
-  border:1px solid var(--hairline);
-  padding:clamp(24px,3vw,40px);
-  margin-bottom:22px;
-  background:var(--gallery);
-  transition:border-color .35s ease;
-}
-.challenge:hover{border-color:var(--ink);}
-.challenge h4{
-  font-weight:700;
-  font-size:clamp(18px,2vw,24px);letter-spacing:-.01em;margin-bottom:12px;
-}
-.challenge .q{
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--klein);display:block;margin-bottom:14px;
-}
-.challenge p{color:#55555E;font-size:15.5px;max-width:62ch;}
-.challenge p strong{color:var(--ink);font-weight:600;}
-
-/* lessons */
-.lesson{
-  border-left:2px solid var(--klein);
-  padding:6px 0 6px clamp(24px,3vw,44px);
-  font-weight:600;
-  font-size:clamp(19px,2.2vw,27px);line-height:1.5;letter-spacing:-.008em;
-  max-width:36ch;
-}
-.lesson small{
-  display:block;margin-top:18px;
-  font-family:var(--mono);font-weight:400;font-size:11px;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--fog);
-}
-
-/* architecture diagram */
-.diagram-wrap{
-  border:1px solid var(--hairline);
-  background:#FBFBF9;
-  padding:clamp(20px,3vw,44px);
-  overflow-x:auto;
-}
-.diagram-wrap svg{display:block;margin:0 auto;min-width:640px;max-width:900px;width:100%;height:auto;}
-.diagram-caption{
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--fog);margin-top:16px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
-}
-/* svg internals */
-.dg-node rect{
-  fill:var(--gallery);stroke:var(--ink);stroke-width:1.25;
-}
-.dg-node.accent rect{stroke:var(--klein);stroke-width:1.5;}
-.dg-node.dark rect{fill:var(--ink);stroke:var(--ink);}
-.dg-node text{
-  font-family:'Archivo',sans-serif;font-size:13.5px;font-weight:650;
-  fill:var(--ink);letter-spacing:-.01em;
-}
-.dg-node.dark text{fill:var(--gallery);}
-.dg-node .sub{
-  font-family:'Spline Sans Mono',monospace;font-size:9.5px;font-weight:400;
-  fill:var(--fog);letter-spacing:.08em;text-transform:uppercase;
-}
-.dg-node.dark .sub{fill:#8B8B95;}
-.dg-wire{
-  fill:none;stroke:var(--klein);stroke-width:1.5;
-  stroke-dasharray:600;stroke-dashoffset:600;
-}
-.dg-wire.loop{stroke:var(--fog);stroke-dasharray:4 5;}
-.dg-arrow{fill:var(--klein);opacity:0;}
-.dg-label{
-  font-family:'Spline Sans Mono',monospace;font-size:9.5px;
-  fill:var(--fog);letter-spacing:.1em;text-transform:uppercase;
-}
-.dg-node{opacity:0;transform:translateY(10px);}
-/* animation on .drawn */
-.diagram-wrap.drawn .dg-node{
-  animation:nodeIn .7s var(--ease) forwards;
-}
-.diagram-wrap.drawn .dg-wire:not(.loop){
-  animation:wire 1.2s var(--ease) forwards;
-}
-.diagram-wrap.drawn .dg-wire.loop{
-  animation:wire 1.2s var(--ease) forwards;
-}
-.diagram-wrap.drawn .dg-arrow{
-  animation:fadeIn .4s ease forwards;
-}
-@keyframes nodeIn{to{opacity:1;transform:none;}}
-@keyframes wire{to{stroke-dashoffset:0;}}
-@keyframes fadeIn{to{opacity:1;}}
-
-/* staggering (applied via inline style --d) */
-.dg-node,.dg-wire,.dg-arrow{animation-delay:var(--d,0s) !important;}
-
-/* case prev/next */
-.cs-nav{
-  border-top:1px solid var(--hairline);
-  display:grid;grid-template-columns:1fr 1fr;
-}
-.cs-nav a{
-  padding:clamp(32px,5vh,56px) var(--gutter);
-  display:flex;flex-direction:column;gap:10px;
-  transition:background .35s ease;
-}
-.cs-nav a:hover{background:#EFEFEA;}
-.cs-nav a:first-child{border-right:1px solid var(--hairline);}
-.cs-nav small{
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--fog);
-}
-.cs-nav b{
-  font-weight:750;
-  font-size:clamp(17px,2vw,24px);letter-spacing:-.01em;line-height:1.2;
-}
-.cs-nav a:last-child{text-align:right;align-items:flex-end;}
-
-/* ============ RESPONSIVE ============ */
-@media (max-width:900px){
-  .case{grid-template-columns:1fr;}
-  .case-left{position:static;}
-  .about-grid{grid-template-columns:1fr;}
-  .lead-grid{grid-template-columns:1fr;}
-  .cs-cols{grid-template-columns:1fr;}
-  nav{display:none;}
-  nav.open{display:flex;position:fixed;inset:0;background:var(--gallery);flex-direction:column;justify-content:center;align-items:center;gap:28px;z-index:60;}
-  nav.open a{font-size:18px;}
-  .menu-btn{display:block;}
-}
-
-/* ============ LIGHTBOX / MODAL ============ */
-.lightbox-modal{
-  position:fixed;inset:0;z-index:1000;
-  background:rgba(0,0,0,.85);
-  display:none;align-items:center;justify-content:center;
-  padding:20px;overflow-y:auto;
-}
-.lightbox-modal.open{display:flex;}
-.lightbox-content{
-  background:var(--gallery);
-  border-radius:8px;
-  max-width:1200px;width:100%;
-  max-height:90vh;overflow-y:auto;
-  position:relative;
-}
-.lightbox-close{
-  position:absolute;top:16px;right:16px;z-index:1001;
-  background:var(--ink);color:var(--gallery);
-  border:none;cursor:pointer;width:44px;height:44px;
-  font-size:28px;display:flex;align-items:center;justify-content:center;
-  border-radius:50%;transition:background .3s ease;font-weight:300;
-}
-.lightbox-close:hover{background:var(--klein);}
-.lightbox-inner{padding:clamp(16px,4vw,40px);}
-.lightbox-img{width:100%;height:auto;display:block;border-radius:4px;margin-bottom:28px;}
-.lightbox-iframe{
-  width:100%;height:600px;border:none;border-radius:4px;
-  display:block;margin-top:20px;
-}
-
-/* screenshot grid */
-.cs-screenshots{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:1px;background:var(--hairline);border:1px solid var(--hairline);
-  margin-top:clamp(20px,3vw,32px);
-}
-.cs-screenshot{
-  background:var(--gallery);padding:2px;cursor:pointer;
-  transition:background .35s ease;position:relative;overflow:hidden;
-}
-.cs-screenshot:hover{background:#EFEFEA;}
-.cs-screenshot img{
-  width:100%;height:auto;display:block;
-  transition:transform .4s var(--ease);
-}
-.cs-screenshot:hover img{transform:scale(1.02);}
-.cs-screenshot-label{
-  position:absolute;bottom:0;left:0;right:0;
-  background:linear-gradient(180deg,transparent,rgba(0,0,0,.6));
-  color:var(--gallery);padding:40px 12px 12px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;
-  text-transform:uppercase;opacity:0;transition:opacity .3s ease;
-}
-.cs-screenshot:hover .cs-screenshot-label{opacity:1;}
-
-/* full-width iframe preview */
-.cs-preview{
-  border:1px solid var(--hairline);
-  padding:0;overflow:hidden;border-radius:4px;
-  margin-top:clamp(24px,3.5vw,40px);
-}
-.cs-preview-label{
-  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--fog);padding:12px 16px;background:var(--gallery);
-  border-bottom:1px solid var(--hairline);
-}
-.cs-preview iframe{
-  width:100%;height:600px;display:block;border:none;
-}
-
-/* ============ REDUCED MOTION ============ */
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none !important;transition:none !important;}
-  #intro{display:none;}
-  body{overflow:auto !important;}
-  header,.hero h1 .line i,.hero-foot,.reveal{opacity:1 !important;transform:none !important;}
-  .dg-node{opacity:1 !important;transform:none !important;}
-  .dg-wire{stroke-dashoffset:0 !important;}
-  .dg-arrow{opacity:1 !important;}
-}
-
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f6f3">
+  <meta name="description" content="Soham Patil, Computer Engineering graduate building full-stack products, offline-first systems, and applied AI tools.">
+  <title>Soham Patil, Software Developer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script defer src="assets/js/main.js"></script>
 </head>
-<body class="locked">
-<header id="header">
-  <a class="logo" href="#top">Soham<em>.</em>Patil</a>
-  <button class="menu-btn" id="menuBtn" aria-label="Open menu">Menu</button>
-  <nav id="nav">
-    <a href="#work">Work</a>
-    <a href="#about">About</a>
-    <a href="#capabilities">Capabilities</a>
-    <a href="#leadership">Leadership</a>
-    <a href="#contact" class="nav-cta">Contact</a>
-  </nav>
-</header>
-<!-- INTRO -->
-<div id="intro" aria-hidden="true">
-  <div class="intro-line"><span>Soham</span></div>
-  <div class="intro-line"><span>Patil</span></div>
-  <div class="intro-rule"></div>
-  <div class="intro-meta">
-    <span>Full Stack Developer</span>
-    <span>Pune, India</span>
-    <span>Portfolio — 2026</span>
+<body class="is-locked">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-name"><span>SOHAM</span><span>PATIL</span></div>
+    <div class="intro-rule"></div>
+    <div class="intro-meta"><span>Software Developer</span><span>Pune, India</span><span>Portfolio / 2026</span></div>
   </div>
-</div>
 
-<!-- HERO -->
-<section class="hero" id="top">
-  <h1>
-    <span class="line"><i>Software that</i></span>
-    <span class="line"><i>ships — and</i></span>
-    <span class="line"><i><em>stays up.</em></i></span>
-  </h1>
-  <div class="hero-foot">
-    <p>
-      I'm Soham, a Computer Engineering graduate building 
-      <span style="color:var(--klein);font-weight:600;">production systems for real businesses</span>. 
-      At AzeelaAI I've shipped offline-first POS platforms, commercial ordering systems, and AI-powered analysis tools — used daily by actual franchises and customers, not just in a demo.
-    </p>
-    <div class="scroll-hint">Scroll</div>
-  </div>
-</section>
+  <header class="site-header" id="header">
+    <a class="wordmark" href="#top" aria-label="Soham Patil home">SOHAM<span>.</span>PATIL</a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="nav">Menu <span>＋</span></button>
+    <nav class="nav" id="nav" aria-label="Main navigation">
+      <a href="#work">Work</a><a href="#about">About</a><a href="#skills">Capabilities</a><a href="#leadership">Leadership</a><a class="nav-contact" href="#contact">Contact ↗</a>
+    </nav>
+  </header>
 
-<!-- STRIP -->
-<div class="strip" aria-hidden="true">
-  <div class="strip-track" id="stripTrack">
-    <span>Offline-First Systems</span>
-    <span>React &amp; Next.js</span>
-    <span>Node.js APIs</span>
-    <span>AI Integration</span>
-    <span>Computer Vision</span>
-    <span>PostgreSQL · MongoDB</span>
-    <span>CGPA 8.75 / 10</span>
-  </div>
-</div>
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-topline"><span class="eyebrow">Independent builder / Pune, India</span><span class="availability"><i></i> Open to opportunities</span></div>
+      <h1 class="hero-title"><span class="line"><span>Software that</span></span><span class="line"><span>solves real</span></span><span class="line accent-line"><span>problems.</span></span></h1>
+      <div class="hero-bottom">
+        <p>I build web products, offline systems, and AI tools for real businesses. I am a Computer Engineering graduate and an intern at AzeelaAI Labs.</p>
+        <div class="hero-actions"><a class="button button-dark" href="#work">Explore my work <span>↘</span></a><a class="text-link" href="resume.pdf" download="Soham_Patil_Resume.pdf">Download résumé ↗</a></div>
+        <div class="scroll-note"><span>Scroll to explore</span><i></i></div>
+      </div>
+      <div class="hero-index">SP / 2026</div>
+    </section>
 
-<!-- WORK -->
-<section id="work">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <div class="eyebrow">Engineering Case Studies</div>
-        <h2>Built for<br/>production</h2>
-      </div>
-      <div class="count">5 case studies — AzeelaAI &amp; projects</div>
-    </div>
+    <div class="ticker" aria-label="Technologies and focus areas"><div class="ticker-track">
+      <span>Offline-first systems</span><b>✳</b><span>React &amp; Next.js</span><b>✳</b><span>Node.js APIs</span><b>✳</b><span>Applied AI</span><b>✳</b><span>Computer vision</span><b>✳</b><span>SQL &amp; data</span><b>✳</b>
+    </div></div>
 
-    <!-- 01 -->
-    <article class="case reveal">
-      <div class="case-left">
-        <span class="case-idx">01 / Internship</span>
-        <h3><a href="case-chicken-vicken.html">K2 Chicken — Commercial Ordering Platform</a></h3>
-        <div class="case-role">Next.js · React · Node.js</div>
-      </div>
-      <div class="case-right">
-        <p class="case-desc">
-          A live commercial ordering platform that replaced manual,
-          WhatsApp-based ordering — with product browsing, cart, checkout, and
-          mobile-responsive interfaces. Cut processing time from
-          <strong>8 minutes to under 2</strong>.
-        </p>
-        <div class="metrics">
-          <div class="metric"><b>−75%</b><small>Order processing time</small></div>
-          <div class="metric"><b>Live</b><small>In commercial use</small></div>
-        </div>
-        <div class="tags">
-          <span>Responsive design</span><span>Checkout flows</span><span>Order management</span>
-        </div>
-        <div class="case-links">
-          <a class="arrow-link" href="case-chicken-vicken.html">Full case study</a>
-          <a class="arrow-link" href="https://www.k2chicken.com" target="_blank" rel="noopener">Live site</a>
-        </div>
-      </div>
-    </article>
+    <section class="section work-section" id="work">
+      <div class="container">
+        <div class="section-heading reveal"><div><p class="eyebrow">Selected work</p><h2>Built for<br><em>real use.</em></h2></div><p class="section-aside">Five projects in product, commerce, and AI.</p></div>
 
-    <!-- 02 -->
-    <article class="case reveal">
-      <div class="case-left">
-        <span class="case-idx">02 / Internship</span>
-        <h3><a href="case-k2chickenpos.html">K2ChickenPOS — Offline-First Franchise POS</a></h3>
-        <div class="case-role">React · Next.js · Node.js · IndexedDB</div>
-      </div>
-      <div class="case-right">
-        <p class="case-desc">
-          A full-stack POS used across <strong>3 franchise locations</strong> for billing,
-          inventory, customer management, loyalty, and reporting. IndexedDB keeps
-          every transaction local through outages, then syncs to the cloud —
-          supporting <strong>50–80 daily transactions</strong>.
-        </p>
-        <div class="metrics">
-          <div class="metric"><b>3</b><small>Franchise locations</small></div>
-          <div class="metric"><b>50–80</b><small>Transactions daily</small></div>
-          <div class="metric"><b>Offline</b><small>Billing during outages</small></div>
-          <div class="metric"><b>Zero</b><small>Downtime from network outages</small></div>
-        </div>
-        <div class="tags">
-          <span>Offline-first sync</span><span>Inventory automation</span><span>Loyalty programs</span><span>REST APIs</span>
-        </div>
-        <div class="case-links">
-          <a class="arrow-link" href="case-k2chickenpos.html">Full case study</a>
-          <a class="arrow-link" href="https://k2-chicken-pos-web.vercel.app/store/pos" target="_blank" rel="noopener">Live demo</a>
-        </div>
-      </div>
-    </article>
-
-    <!-- 03 -->
-    <article class="case reveal">
-      <div class="case-left">
-        <span class="case-idx">03 / Internal</span>
-        <h3><a href="case-ai-analyzer.html">AI Business Opportunity Analyzer</a></h3>
-        <div class="case-role">Next.js · Node.js · PostgreSQL · OpenAI · Gemini</div>
-      </div>
-      <div class="case-right">
-        <p class="case-desc">
-          An internal AzeelaAI tool that analyzes business websites, Google Business
-          Profiles, and customer reviews — then turns that research into
-          <strong>structured opportunities and recommendations</strong>.
-          Proprietary — code not publicly available.
-        </p>
-        <div class="metrics">
-          <div class="metric"><b>Dual-provider</b><small>OpenAI + Gemini for resilience</small></div>
-          <div class="metric"><b>End-to-end</b><small>Research automated</small></div>
-        </div>
-        <div class="tags">
-          <span>LLM orchestration</span><span>Secure dashboards</span><span>Lead workflows</span><span>Structured reports</span>
-        </div>
-        <div class="case-links">
-          <a class="arrow-link" href="case-ai-analyzer.html">Full case study</a>
-        </div>
-      </div>
-    </article>
-
-    <!-- 04 -->
-    <article class="case reveal">
-      <div class="case-left">
-        <span class="case-idx">04 / Project</span>
-        <h3><a href="case-delphin.html">Delphin Business Consulting Website</a></h3>
-        <div class="case-role">HTML5 · CSS3 · JavaScript · Bootstrap 5</div>
-      </div>
-      <div class="case-right">
-        <p class="case-desc">
-          A professional business website showcasing technology, finance, operations,
-          marketing, and automation solutions — with responsive sections for services,
-          case studies, selected work, and business insights.
-        </p>
-        <div class="metrics">
-          <div class="metric"><b>Jul–Sep</b><small>2026 build</small></div>
-          <div class="metric"><b>Live</b><small>Client site</small></div>
-        </div>
-        <div class="tags">
-          <span>Responsive design</span><span>Interactive UI</span><span>Client navigation</span>
-        </div>
-        <div class="case-links">
-          <a class="arrow-link" href="case-delphin.html">Full case study</a>
-          <a class="arrow-link" href="https://www.delphin.in/" target="_blank" rel="noopener">Live site</a>
-        </div>
-      </div>
-    </article>
-
-    <!-- 05 -->
-    <article class="case reveal">
-      <div class="case-left">
-        <span class="case-idx">05 / Research</span>
-        <h3><a href="case-traffic-detection.html">AI Traffic Violation Detection</a></h3>
-        <div class="case-role">Python · OpenCV · Machine Learning</div>
-      </div>
-      <div class="case-right">
-        <p class="case-desc">
-          A computer-vision pipeline that watches CCTV footage for red-light
-          violations and helmet compliance. Iterative work on preprocessing and
-          detection lifted precision from 72% to <strong>~90% on a 500-image
-          evaluation set</strong>.
-        </p>
-        <div class="metrics">
-          <div class="metric"><b>90%</b><small>Detection precision</small></div>
-          <div class="metric"><b>72% → 90%</b><small>Precision gain</small></div>
-        </div>
-        <div class="tags">
-          <span>Object detection</span><span>Image preprocessing</span><span>Automated pipelines</span>
-        </div>
-        <div class="case-links">
-          <a class="arrow-link" href="case-traffic-detection.html">Full case study</a>
-          <a class="arrow-link" href="https://github.com/SohamPatil01/FinalYearProject-" target="_blank" rel="noopener">GitHub</a>
-        </div>
-      </div>
-    </article>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="about" id="about">
-  <div class="wrap">
-    <div class="about-grid">
-      <div class="reveal">
-        <div class="eyebrow">About</div>
-        <h2>
-          What I've built has<br/>
-          gone into<br/>
-          <em>real use.</em>
-        </h2>
-        <figure class="portrait">
-          <div class="ph">
-            <img src="soham-portrait.jpg" alt="Soham Patil" width="800" height="800" loading="lazy" />
+        <article class="project reveal">
+          <div class="project-left"><div class="project-number">01 / Commerce</div><h3>K2 Chicken</h3><p class="project-subtitle">Commercial ordering platform</p><div class="project-tags"><span>Next.js</span><span>React</span><span>Node.js</span></div></div>
+          <div class="project-right"><div class="project-art art-commerce"><div class="commerce-window"><div class="commerce-nav"><b>K2<span>CHICKEN</span></b><small>SHOP / FRESH CUTS / CART</small></div><div class="commerce-hero"><div><small>FRESH FOR YOUR TABLE</small><b>Good food<br>starts here.</b><span>Shop fresh cuts for everyday cooking.</span></div><div class="food-shape"><div class="food-shape-inner"></div></div></div><div class="commerce-products"><span>Popular cuts</span><div><i></i><i></i><i></i></div></div></div></div>
+            <p class="project-description">Customers browse products, add items to a cart, and check out online. It replaced orders taken through WhatsApp messages.</p>
+            <div class="project-stats"><div><b>−75%</b><span>Order time cut</span></div><div><b>Live</b><span>Commercial website</span></div></div>
+            <div class="project-links"><a class="arrow-link" href="case-chicken-vicken.html">Full case study ↗</a><a class="arrow-link" href="https://www.k2chicken.com" target="_blank" rel="noopener">Live site ↗</a></div>
           </div>
-          <figcaption><span>Soham Patil</span><span>Pune, IN</span></figcaption>
-        </figure>
+        </article>
+
+        <article class="project reveal">
+          <div class="project-left"><div class="project-number">02 / Product Engineering</div><h3>K2ChickenPOS</h3><p class="project-subtitle">Offline-first franchise point of sale</p><div class="project-tags"><span>React</span><span>Next.js</span><span>Node.js</span><span>IndexedDB</span></div></div>
+          <div class="project-right"><div class="project-art art-pos"><div class="art-window"><div class="window-bar"><i></i><i></i><i></i><span>STORE / POS</span></div><div class="pos-layout"><div class="pos-menu"><b>Today's counter</b><small>PRODUCTS</small><div class="fake-product"></div><div class="fake-product short"></div><div class="fake-product"></div></div><div class="pos-cart"><small>CURRENT ORDER</small><strong>₹ 1,240.00</strong><div class="cart-line"></div><div class="cart-line"></div><div class="cart-total"><span>Subtotal</span><b>₹ 1,240</b></div><div class="pay-button">Complete sale ↗</div></div></div><div class="offline-pill"><i></i> Local-first · Sync ready</div></div></div>
+            <p class="project-description">Staff can keep billing when the internet drops. Sales save on the device and sync when the connection returns. It also handles stock, customers, loyalty, and reports.</p>
+            <div class="project-stats"><div><b>3</b><span>Franchise locations</span></div><div><b>50 to 80</b><span>Daily transactions</span></div><div><b>Offline</b><span>Billing during outages</span></div></div>
+            <div class="project-links"><a class="arrow-link" href="case-k2chickenpos.html">Full case study ↗</a><a class="arrow-link" href="https://k2-chicken-pos-web.vercel.app/store/pos" target="_blank" rel="noopener">Live demo ↗</a></div>
+          </div>
+        </article>
+
+        <article class="project reveal">
+          <div class="project-left"><div class="project-number">03 / Applied AI</div><h3>AI Business Opportunity Analyzer</h3><p class="project-subtitle">Research automation &amp; structured recommendations</p><div class="project-tags"><span>Next.js</span><span>Node.js</span><span>PostgreSQL</span><span>OpenAI</span><span>Gemini</span></div></div>
+          <div class="project-right"><div class="project-art art-ai"><div class="ai-panel"><div class="ai-top"><span>OPPORTUNITY REPORT</span><span class="ai-live">● ANALYSIS</span></div><div class="ai-score"><div><small>BUSINESS SIGNALS</small><strong>Opportunity<br>map</strong></div><div class="score-ring"><span>AI</span></div></div><div class="signal"><span>Website experience</span><i><b style="width:78%"></b></i><small>Review</small></div><div class="signal"><span>Customer feedback</span><i><b style="width:62%"></b></i><small>Analyze</small></div><div class="signal"><span>Local presence</span><i><b style="width:88%"></b></i><small>Improve</small></div><div class="ai-footer">Signals → Findings → Recommendations</div></div></div>
+            <p class="project-description">It reads a business website and its customer reviews. It then lists clear actions the business can take. Internal tool. The code is not public.</p>
+            <div class="project-stats"><div><b>2</b><span>AI providers used</span></div><div><b>End-to-end</b><span>Research automated</span></div></div>
+            <div class="project-links"><a class="arrow-link" href="case-ai-analyzer.html">Full case study ↗</a></div>
+          </div>
+        </article>
+
+        <article class="project reveal">
+          <div class="project-left"><div class="project-number">04 / Client Website</div><h3>Delphin Business Consulting</h3><p class="project-subtitle">Professional services website</p><div class="project-tags"><span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Bootstrap 5</span></div></div>
+          <div class="project-right"><div class="project-art art-delphin"><div class="delphin-window"><div class="delphin-nav">DELPHIN <span>Strategy / Technology / Growth</span></div><div class="delphin-copy"><small>BUSINESS CONSULTING</small><b>Clarity for<br>what comes next.</b><span>Technology, operations and growth solutions.</span><i>Explore our services ↗</i></div><div class="delphin-orb"></div></div></div>
+            <p class="project-description">A clear website for a consulting firm. It shows services, past work, and insights in a simple layout.</p>
+            <div class="project-stats"><div><b>Live</b><span>Client website</span></div><div><b>Responsive</b><span>Works on all screens</span></div></div>
+            <div class="project-links"><a class="arrow-link" href="case-delphin.html">Full case study ↗</a><a class="arrow-link" href="https://www.delphin.in/" target="_blank" rel="noopener">Live site ↗</a></div>
+          </div>
+        </article>
+
+        <article class="project reveal">
+          <div class="project-left"><div class="project-number">05 / Computer Vision</div><h3>AI Traffic Violation Detection</h3><p class="project-subtitle">Computer-vision research project</p><div class="project-tags"><span>Python</span><span>OpenCV</span><span>YOLO</span><span>OCR</span></div></div>
+          <div class="project-right"><div class="project-art art-vision"><div class="vision-frame"><div class="road-lines"></div><div class="vehicle vehicle-one"><i></i></div><div class="vehicle vehicle-two"><i></i></div><div class="detect-box box-one"><span>VEHICLE / 0.91</span></div><div class="detect-box box-two"><span>PLATE / OCR</span></div><div class="vision-status"><i></i> DETECTION PIPELINE</div></div></div>
+            <p class="project-description">It detects red light violations and riders without helmets from CCTV video. Testing on 500 images raised precision from 72% to about 90%.</p>
+            <div class="project-stats"><div><b>72% → ~90%</b><span>Precision gain</span></div><div><b>500 images</b><span>Test images</span></div></div>
+            <div class="project-links"><a class="arrow-link" href="case-traffic-detection.html">Full case study ↗</a><a class="arrow-link" href="https://github.com/SohamPatil01/FinalYearProject-" target="_blank" rel="noopener">GitHub ↗</a></div>
+          </div>
+        </article>
       </div>
-      <div class="about-side reveal">
-        <p>
-          I'm a Computer Engineering graduate from Genba Sopanrao Moze College of
-          Engineering (Savitribai Phule Pune University), CGPA 8.75/10. But the
-          number that matters more to me is this: a POS system I helped build runs
-          across 3 franchise locations every day, and an ordering platform I shipped
-          replaced a business's entire WhatsApp workflow.
-        </p>
-        <p>
-          As a Software Development Intern at AzeelaAI Labs (Dec 2025 – Present),
-          I've worked across the stack — frontend, backend, offline-first architecture,
-          and AI integration — on tools that had to work the first time, because real
-          people were depending on them.
-        </p>
-        <p>
-          I like learning new technologies by building things that solve actual
-          problems, not by following tutorials. Full-stack engineering and applied AI
-          are what I focus on next.
-        </p>
-        <div class="facts">
-          <div class="fact"><span>Degree</span><span>B.E. Computer Engineering, 2022–2026</span></div>
-          <div class="fact"><span>CGPA</span><span>8.75 / 10</span></div>
-          <div class="fact"><span>Internship</span><span>Software Development Intern — AzeelaAI Labs</span></div>
-          <div class="fact"><span>Certification</span><span>Java Full Stack with ReactJS — IT Shaala, 2024–2025</span></div>
-          <div class="fact"><span>Base</span><span>Pune, India · Open to relocate</span></div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="container about-grid">
+        <div class="about-heading reveal"><p class="eyebrow">A little about me</p><h2>Curious by nature.<br><em>Builder by practice.</em></h2>
+          <figure class="portrait-photo"><div class="ph"><img src="soham-portrait.jpg" alt="Soham Patil" width="800" height="800" loading="lazy"></div><figcaption><span>Soham Patil</span><span>Pune, India</span></figcaption></figure>
+        </div>
+        <div class="about-copy reveal"><p class="about-lede">I learn best by building useful software.</p><p>I studied Computer Engineering at Genba Sopanrao Moze College of Engineering, under Savitribai Phule Pune University. My CGPA was 8.75 out of 10.</p><p>At AzeelaAI Labs, I work as a Software Development Intern. I build frontend, backend, and AI features. I like clear goals, simple design, and learning by doing.</p>
+          <div class="facts"><div><span>Education</span><b>B.E. Computer Engineering</b></div><div><span>University</span><b>Savitribai Phule Pune University</b></div><div><span>CGPA</span><b>8.75 / 10</b></div><div><span>Experience</span><b>Software Development Intern, AzeelaAI Labs</b></div><div><span>Certification</span><b>Java Full Stack with ReactJS, IT Shaala</b></div><div><span>Location</span><b>Pune, India · Open to relocate</b></div></div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- CAPABILITIES -->
-<section id="capabilities">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <div class="eyebrow">Capabilities</div>
-        <h2>What I<br/>work with</h2>
+    <section class="skills-section section" id="skills">
+      <div class="container">
+        <div class="section-heading reveal"><div><p class="eyebrow">Tools &amp; capabilities</p><h2>What I work<br><em>with.</em></h2></div><p class="section-aside">Tools I use in my projects.</p></div>
+        <div class="skill-list reveal">
+          <div class="skill-row"><h3>Languages</h3><p>TypeScript · JavaScript (ES6+) · Python · Java · SQL</p></div>
+          <div class="skill-row"><h3>Frontend</h3><p>React.js · Next.js · HTML5 · CSS3 · Bootstrap 5 · Tailwind CSS</p></div>
+          <div class="skill-row"><h3>Backend</h3><p>Node.js · Express.js · REST APIs · JWT authentication</p></div>
+          <div class="skill-row"><h3>Databases</h3><p>MongoDB · MySQL · SQL Server · IndexedDB · PostgreSQL</p></div>
+          <div class="skill-row"><h3>AI &amp; data</h3><p>OpenAI API · Google Gemini API · LLM integration · OpenCV · Power BI · Excel</p></div>
+          <div class="skill-row"><h3>Tools</h3><p>Git · GitHub · Vercel · VS Code · Postman</p></div>
+        </div>
       </div>
-    </div>
-    <div class="reveal">
-      <div class="cap-row">
-        <h4>Languages</h4>
-        <p>TypeScript · JavaScript <span>ES6+</span> · Python · Java · SQL</p>
+    </section>
+
+    <section class="leadership-section section" id="leadership">
+      <div class="container">
+        <div class="section-heading reveal"><div><p class="eyebrow">Beyond the code</p><h2>Community &amp;<br><em>leadership.</em></h2></div></div>
+        <div class="leadership-grid reveal"><article><span class="project-number">01 / Community</span><h3>Founder &amp; Vice President, VAMINT Coding Club</h3><p>I helped start a coding club and run workshops and student competitions.</p><div class="project-tags"><span>Community</span><span>Workshops</span><span>Coordination</span></div></article><article><span class="project-number">02 / Events</span><h3>Technical event organizer</h3><p>I helped plan technical events. I handled logistics, branding, and volunteers.</p><div class="project-tags"><span>Planning</span><span>Teamwork</span><span>Execution</span></div></article></div>
       </div>
-      <div class="cap-row">
-        <h4>Frontend</h4>
-        <p>React.js · Next.js · HTML5 · CSS3 · Bootstrap 5 · Tailwind CSS</p>
-      </div>
-      <div class="cap-row">
-        <h4>Backend</h4>
-        <p>Node.js · Express.js · REST APIs · JWT Authentication</p>
-      </div>
-      <div class="cap-row">
-        <h4>Databases</h4>
-        <p>MongoDB · MySQL · SQL Server · IndexedDB · PostgreSQL</p>
-      </div>
-      <div class="cap-row">
-        <h4>AI &amp; LLM</h4>
-        <p>OpenAI API · Google Gemini API · LLM Integration · AI Automation <span>· OpenCV</span></p>
-      </div>
-      <div class="cap-row">
-        <h4>Developer Tools</h4>
-        <p>Git · GitHub · Vercel · Power BI · Microsoft Excel · VS Code · Postman</p>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- LEADERSHIP -->
-<section id="leadership">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div>
-        <div class="eyebrow">Beyond the Code</div>
-        <h2>Leadership</h2>
-      </div>
-    </div>
-    <div class="lead-grid reveal">
-      <div class="lead-card">
-        <h5>Founder &amp; Vice President — VAMINT Coding Club</h5>
-        <div class="lead-stat">30+ members · 8+ workshops · 3 competitions</div>
-        <p>Founded and grew a coding community while organizing technical workshops and inter-college competitions.</p>
-      </div>
-      <div class="lead-card">
-        <h5>Event Organizer — 2026</h5>
-        <div class="lead-stat">5 events · 200+ participants</div>
-        <p>Planned and coordinated technical events — logistics, branding, and volunteer coordination.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section class="contact" id="contact">
-  <div class="wrap reveal">
-    <div class="eyebrow">Contact</div>
-    <a class="big-mail" href="mailto:patilsoham899@gmail.com">patilsoham899@gmail.com</a>
-    <div class="contact-meta">
-      <a class="arrow-link" href="https://github.com/SohamPatil01" target="_blank" rel="noopener">GitHub</a>
-      <a class="arrow-link" href="https://www.linkedin.com/in/soham-patil-dev/" target="_blank" rel="noopener">LinkedIn</a>
-      <a class="arrow-link" href="tel:+917028328124">+91 70283 28124</a>
-      <a class="arrow-link" href="resume.pdf" download="Soham_Patil_Resume.pdf">Resume</a>
-    </div>
-  </div>
-</section>
-
-<div id="lightbox" class="lightbox-modal">
-  <div class="lightbox-content">
-    <button id="lightbox-close" class="lightbox-close">&times;</button>
-    <div class="lightbox-inner"></div>
-  </div>
-</div>
-<footer>
-  <span>&copy; 2026 Soham Patil</span>
-  <span>Pune, India</span>
-  <span>Designed &amp; built from scratch</span>
-</footer>
-<script>
-(function(){
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const intro = document.getElementById('intro');
-  const body = document.body;
-
-  // ticker duplicate (landing only)
-  const track = document.getElementById('stripTrack');
-  if(track) track.innerHTML += track.innerHTML;
-
-  // intro: play on every landing page load, only suppress on case study pages
-  if(intro){
-    const isLanding = !window.location.pathname.includes('case-');
-    const seen = sessionStorage.getItem('introSeen');
-    if(reduce || (seen && !isLanding)){
-      intro.remove();
-      body.classList.remove('locked');
-      body.classList.add('ready');
-    }else{
-      requestAnimationFrame(()=> requestAnimationFrame(()=> intro.classList.add('play')));
-      setTimeout(()=>{
-        intro.classList.add('lift');
-        body.classList.remove('locked');
-        body.classList.add('ready');
-        sessionStorage.setItem('introSeen','1');
-        setTimeout(()=> intro.remove(), 1400);
-      }, 3200);
-    }
-  }else{
-    body.classList.remove('locked');
-    body.classList.add('ready');
-  }
-
-  // nav scroll state
-  const header = document.getElementById('header');
-  addEventListener('scroll', ()=>{
-    header.classList.toggle('scrolled', scrollY > 40);
-  }, {passive:true});
-
-  // scroll reveals
-  const io = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
-    });
-  },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
-  document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
-
-  // architecture diagrams: draw when visible
-  const dio = new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){ e.target.classList.add('drawn'); dio.unobserve(e.target); }
-    });
-  },{threshold:.35});
-  document.querySelectorAll('.diagram-wrap').forEach(el=> dio.observe(el));
-
-  // lightbox modal
-  const modal = document.getElementById('lightbox');
-  const closeBtn = document.getElementById('lightbox-close');
-  const screenshots = document.querySelectorAll('.cs-screenshot, .lightbox-trigger');
-  if(modal && closeBtn){
-    screenshots.forEach(ss => {
-      ss.addEventListener('click', (e)=>{
-        const imgSrc = ss.dataset.imgSrc;
-        const iframeSrc = ss.dataset.iframeSrc;
-        const label = ss.dataset.label || '';
-        
-        const inner = modal.querySelector('.lightbox-inner');
-        let content = '';
-        if(imgSrc) content += `<img class="lightbox-img" src="${imgSrc}" alt="${label}" />`;
-        if(iframeSrc) content += `<iframe class="lightbox-iframe" src="${iframeSrc}" title="${label}"></iframe>`;
-        inner.innerHTML = content;
-        modal.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      });
-    });
-    closeBtn.addEventListener('click', ()=>{
-      modal.classList.remove('open');
-      document.body.style.overflow = 'auto';
-    });
-    modal.addEventListener('click', (e)=>{
-      if(e.target === modal){
-        modal.classList.remove('open');
-        document.body.style.overflow = 'auto';
-      }
-    });
-  }
-
-  // mobile menu
-  const menuBtn = document.getElementById('menuBtn');
-  const nav = document.getElementById('nav');
-  if(menuBtn && nav){
-    menuBtn.addEventListener('click', ()=>{
-      const open = nav.classList.toggle('open');
-      menuBtn.textContent = open ? 'Close' : 'Menu';
-    });
-    nav.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=>{
-      nav.classList.remove('open');
-      menuBtn.textContent = 'Menu';
-    }));
-  }
-})();
-
-</script>
+    <section class="contact-section" id="contact">
+      <div class="container reveal"><p class="eyebrow">Have a role, idea, or project?</p><h2>Let's make<br><em>something useful.</em></h2><a class="email-link" href="mailto:patilsoham899@gmail.com">patilsoham899@gmail.com <span>↗</span></a><div class="contact-links"><a href="https://github.com/SohamPatil01" target="_blank" rel="noopener">GitHub ↗</a><a href="https://www.linkedin.com/in/soham-patil-dev/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="tel:+917028328124">+91 70283 28124</a><a href="resume.pdf" download="Soham_Patil_Resume.pdf">Résumé PDF ↓</a></div></div>
+    </section>
+  </main>
+  <footer><span>© <span id="year">2026</span> Soham Patil</span><span>Designed &amp; built with care</span><a href="#top">Back to top ↑</a></footer>
 </body>
 </html>
